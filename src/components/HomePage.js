@@ -1019,6 +1019,8 @@ export default function HomePage() {
                             </div>
                         ) : (() => {
                             const filteredPresences = presences.filter((p) => {
+                                if (p.username !== user?.username) return false;
+
                                 if (historyFilter.picketType !== 'all' && p.picketType !== historyFilter.picketType) {
                                     return false;
                                 }
