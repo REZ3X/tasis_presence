@@ -495,10 +495,20 @@ function AdminContent() {
                                                         <p className="font-bold text-base text-white">{u.name}</p>
                                                         <p className="text-sm text-gray-400 mt-0.5">@{u.username}</p>
                                                     </div>
-                                                    <span className={`text-xs px-2 py-1 rounded flex items-center gap-1 ${u.role === 'dev' ? 'bg-purple-500 bg-opacity-20 text-purple-400' :
-                                                        u.role === 'staff' ? 'bg-blue-500 bg-opacity-20 text-blue-400' :
-                                                            'bg-gray-500 bg-opacity-20 text-gray-400'
-                                                        }`}>
+                                                    <span className="text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 font-bold border"
+                                                        style={u.role === 'dev' ? {
+                                                            background: 'rgba(139, 92, 246, 0.25)',
+                                                            color: '#c4b5fd',
+                                                            borderColor: '#a78bfa'
+                                                        } : u.role === 'staff' ? {
+                                                            background: 'rgba(59, 130, 246, 0.25)',
+                                                            color: '#93c5fd',
+                                                            borderColor: '#60a5fa'
+                                                        } : {
+                                                            background: 'rgba(156, 163, 175, 0.25)',
+                                                            color: '#d1d5db',
+                                                            borderColor: '#9ca3af'
+                                                        }}>
                                                         <FaUserShield />
                                                         {u.role.toUpperCase()}
                                                     </span>
