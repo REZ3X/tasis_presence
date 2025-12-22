@@ -190,7 +190,6 @@ function ProfileContent() {
                                 <>
                                     <p>✓ Input presensi piket</p>
                                     <p>✓ Lihat riwayat presensi sendiri</p>
-                                    <p>✗ Tidak bisa akses admin panel</p>
                                 </>
                             )}
                             {user.role === 'staff' && (
@@ -200,7 +199,6 @@ function ProfileContent() {
                                     <p>✓ Akses admin panel (lihat saja)</p>
                                     <p>✓ Lihat data semua user</p>
                                     <p>✓ Lihat semua presensi</p>
-                                    <p>✗ Tidak bisa edit/hapus data</p>
                                 </>
                             )}
                             {user.role === 'dev' && (

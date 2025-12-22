@@ -142,9 +142,9 @@ function PresenceDetailContent() {
                     {presence.imageUrl && (() => {
                         let fileId = null;
                         const urlPatterns = [
-                            /[?&]id=([^&]+)/, 
-                            /\/d\/([^/]+)/,    
-                            /\/file\/d\/([^/]+)/ 
+                            /[?&]id=([^&]+)/,
+                            /\/d\/([^/]+)/,
+                            /\/file\/d\/([^/]+)/
                         ];
 
                         for (const pattern of urlPatterns) {
@@ -270,10 +270,13 @@ function PresenceDetailContent() {
 
                             <div>
                                 <p className="text-xs text-gray-500">Status</p>
-                                <span className={`inline-block px-3 py-1 rounded-lg font-semibold ${presence.status === 'Tepat Waktu'
-                                    ? 'bg-green-500 bg-opacity-20 text-green-400'
-                                    : 'bg-red-500 bg-opacity-20 text-red-400'
-                                    }`}>
+                                <span
+                                    className="text-xs px-3 py-1.5 rounded-lg font-black border-2 uppercase tracking-wide"
+                                    style={presence.status === 'Tepat Waktu'
+                                        ? { background: 'rgba(34, 197, 94, 0.25)', color: '#4ade80', borderColor: '#22c55e' }
+                                        : { background: 'rgba(239, 68, 68, 0.25)', color: '#f87171', borderColor: '#ef4444' }
+                                    }
+                                >
                                     {presence.status}
                                 </span>
                             </div>

@@ -63,6 +63,7 @@ function AdminContent() {
     const [activeTab, setActiveTab] = useState('presences');
     const [presences, setPresences] = useState([]);
     const [users, setUsers] = useState([]);
+    const [userSearch, setUserSearch] = useState('');
     const [loading, setLoading] = useState(true);
     const [exporting, setExporting] = useState(false);
     const [exportMonth, setExportMonth] = useState(new Date().getMonth() + 1);
@@ -120,6 +121,17 @@ function AdminContent() {
             setLoading(false);
         }
     };
+
+    const filteredUsers = users.filter((u) => {
+        const q = (userSearch || '').trim().toLowerCase();
+        if (!q) return true;
+        return (
+            (u.name || '').toLowerCase().includes(q) ||
+            (u.username || '').toLowerCase().includes(q) ||
+            (u.class || '').toLowerCase().includes(q) ||
+            (u.major || '').toLowerCase().includes(q)
+        );
+    });
 
     const handleDeletePresence = async (id) => {
         if (!confirm('Yakin ingin menghapus presensi ini?')) return;
@@ -475,13 +487,34 @@ function AdminContent() {
                             {/* Users List */}
                             {activeTab === 'users' && (
                                 <div className="space-y-4">
+                                    <div className="rounded-2xl px-5 py-4 shadow-2xl"
+                                        style={{ background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(10px)' }}>
+                                        <input
+                                            type="search"
+                                            value={userSearch}
+                                            onChange={(e) => setUserSearch(e.target.value)}
+                                            placeholder="Cari pengguna, nama, kelas, atau username..."
+                                            className="w-full px-3 py-2 rounded-lg text-sm"
+                                            style={{
+                                                background: 'rgba(255, 255, 255, 0.02)',
+                                                border: '1px solid rgba(255,255,255,0.06)',
+                                                color: '#ffffff',
+                                            }}
+                                        />
+                                    </div>
+
                                     {users.length === 0 ? (
                                         <div className="text-center py-12 rounded-2xl"
                                             style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
                                             <p className="text-gray-400">Tidak ada data user</p>
                                         </div>
+                                    ) : filteredUsers.length === 0 ? (
+                                        <div className="text-center py-12 rounded-2xl"
+                                            style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
+                                            <p className="text-gray-400">Tidak ada user yang cocok</p>
+                                        </div>
                                     ) : (
-                                        users.map((u) => (
+                                        filteredUsers.map((u) => (
                                             <div
                                                 key={u.id}
                                                 className="rounded-xl px-5 py-4 shadow-lg"
