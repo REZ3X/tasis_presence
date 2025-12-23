@@ -326,22 +326,7 @@ function AdminContent() {
                             </button>
                         </div>
                     )}
-                    {/* Footer */}
-                    <div className="mt-8 text-center">
-                        <p className="text-xs sm:text-sm font-bold" style={{ color: '#999' }}>
-                            Created by{' '}
-                            <a
-                                href="https://rejaka.id"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="font-black hover:underline transition-all"
-                                style={{ color: '#ebae3b' }}
-                            >
-                                rejaka.id
-                            </a>
-                            {' '}for TASIS
-                        </p>
-                    </div>
+
 
                     {/* Export Section */}
                     {activeTab === 'presences' && (
@@ -586,42 +571,75 @@ function AdminContent() {
                     )}
 
                     {/* Stats */}
-                    {activeTab === 'presences' && !loading && presences.length > 0 && (
-                        <div className="rounded-2xl px-5 py-6 shadow-2xl"
-                            style={{ background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(10px)' }}>
-                            <h3 className="text-sm font-bold mb-5" style={{ color: '#ebae3b' }}>
-                                Statistik
-                            </h3>
-                            <div className="grid grid-cols-2 gap-5 text-center">
-                                <div>
-                                    <p className="text-2xl font-bold text-white">
-                                        {presences.length}
-                                    </p>
-                                    <p className="text-xs text-gray-400">Total Presensi</p>
-                                </div>
-                                <div>
-                                    <p className="text-2xl font-bold" style={{ color: '#22c55e' }}>
-                                        {presences.filter(p => p.status === 'Tepat Waktu').length}
-                                    </p>
-                                    <p className="text-xs text-gray-400">Tepat Waktu</p>
-                                </div>
-                                <div>
-                                    <p className="text-2xl font-bold" style={{ color: '#ef4444' }}>
-                                        {presences.filter(p => p.status === 'Terlambat').length}
-                                    </p>
-                                    <p className="text-xs text-gray-400">Terlambat</p>
-                                </div>
-                                <div>
-                                    <p className="text-2xl font-bold" style={{ color: '#ebae3b' }}>
-                                        {new Set(presences.map(p => p.username)).size}
-                                    </p>
-                                    <p className="text-xs text-gray-400">Unique Users</p>
+                    {
+                        !loading && ((activeTab === 'presences' && presences.length > 0) || (activeTab === 'users' && users.length > 0)) && (
+                            <div className="rounded-2xl px-5 py-6 shadow-2xl"
+                                style={{ background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(10px)' }}>
+                                <h3 className="text-sm font-bold mb-5" style={{ color: '#ebae3b' }}>
+                                    Statistik
+                                </h3>
+                                <div className="grid grid-cols-2 gap-5 text-center">
+                                    {activeTab === 'presences' ? (
+                                        <>
+                                            <div>
+                                                <p className="text-2xl font-bold text-white">
+                                                    {presences.length}
+                                                </p>
+                                                <p className="text-xs text-gray-400">Total Presensi</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-2xl font-bold" style={{ color: '#22c55e' }}>
+                                                    {presences.filter(p => p.status === 'Tepat Waktu').length}
+                                                </p>
+                                                <p className="text-xs text-gray-400">Tepat Waktu</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-2xl font-bold" style={{ color: '#ef4444' }}>
+                                                    {presences.filter(p => p.status === 'Terlambat').length}
+                                                </p>
+                                                <p className="text-xs text-gray-400">Terlambat</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-2xl font-bold" style={{ color: '#ebae3b' }}>
+                                                    {new Set(presences.map(p => p.username)).size}
+                                                </p>
+                                                <p className="text-xs text-gray-400">Unique Users</p>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div>
+                                                <p className="text-2xl font-bold text-white">
+                                                    {users.length}
+                                                </p>
+                                                <p className="text-xs text-gray-400">Total Users</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-2xl font-bold" style={{ color: '#a78bfa' }}>
+                                                    {users.filter(u => u.role === 'dev').length}
+                                                </p>
+                                                <p className="text-xs text-gray-400">Developers</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-2xl font-bold" style={{ color: '#60a5fa' }}>
+                                                    {users.filter(u => u.role === 'staff').length}
+                                                </p>
+                                                <p className="text-xs text-gray-400">Staff</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-2xl font-bold" style={{ color: '#ebae3b' }}>
+                                                    {new Set(users.map(u => `${u.class || ''}-${u.major || ''}`)).size}
+                                                </p>
+                                                <p className="text-xs text-gray-400">Unique Class/Major</p>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             </div>
-                        </div>
-                    )}
-                </div>
-            </div>
+                        )
+                    }
+                </div >
+            </div >
         </>
     );
 }
