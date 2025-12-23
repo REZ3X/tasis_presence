@@ -606,11 +606,12 @@ export default function HomePage() {
             <div className="min-h-screen pb-20"
                 style={{ background: 'linear-gradient(135deg, #0d1216 0%, #1a2332 100%)' }}>
                 {/* Header */}
-                <div className="sticky top-0 z-10 px-4 py-5 border-b"
+                <div className="sticky top-0 z-50 px-4 py-5 border-b"
                     style={{
                         background: 'rgba(13, 18, 22, 0.95)',
                         backdropFilter: 'blur(10px)',
                         borderColor: 'rgba(235, 174, 59, 0.2)',
+                        zIndex: 9999,
                     }}>
                     <div className="flex items-center justify-between mb-5">
                         <div className="flex items-center gap-4">
@@ -634,7 +635,7 @@ export default function HomePage() {
                 </div>
 
                 <script async="async" data-cfasync="false" src="https://pl28316989.effectivegatecpm.com/487e52acb339c3a0ec406d9715d6faa1/invoke.js"></script>
-                <div id="container-487e52acb339c3a0ec406d9715d6faa1" />
+                <div id="container-487e52acb339c3a0ec406d9715d6faa1" style={{ position: 'relative', zIndex: 0 }} />
 
                 <div className="px-4 py-6 space-y-8">
                     {/* Success Message */}
@@ -1143,7 +1144,7 @@ export default function HomePage() {
                             );
                         })()}
                     </div>
-                        
+
                     {/* Footer */}
                     <div className="mt-8 text-center">
                         <p className="text-xs sm:text-sm font-bold" style={{ color: '#999' }}>
