@@ -326,6 +326,22 @@ function AdminContent() {
                             </button>
                         </div>
                     )}
+                    {/* Footer */}
+                    <div className="mt-8 text-center">
+                        <p className="text-xs sm:text-sm font-bold" style={{ color: '#999' }}>
+                            Created by{' '}
+                            <a
+                                href="https://rejaka.id"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-black hover:underline transition-all"
+                                style={{ color: '#ebae3b' }}
+                            >
+                                rejaka.id
+                            </a>
+                            {' '}for TASIS
+                        </p>
+                    </div>
 
                     {/* Export Section */}
                     {activeTab === 'presences' && (
