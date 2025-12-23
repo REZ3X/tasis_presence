@@ -628,7 +628,11 @@ export default function HomePage() {
                             onLogout={logout}
                         />
                     </div>
-                    <CurrentTime />
+                    <>
+                        <script async="async" data-cfasync="false" src="https://pl28316989.effectivegatecpm.com/487e52acb339c3a0ec406d9715d6faa1/invoke.js"></script>
+                        <div id="container-487e52acb339c3a0ec406d9715d6faa1" />
+                        <CurrentTime />
+                    </>
                 </div>
 
                 <div className="px-4 py-6 space-y-8">
