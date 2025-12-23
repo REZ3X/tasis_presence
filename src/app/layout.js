@@ -43,6 +43,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className="antialiased" style={{ fontFamily: 'ui-sans-serif, sans-serif' }}>
         {children}
+        <script src="https://pl28316934.effectivegatecpm.com/b0/04/76/b00476d5b885cedd5d97e09951b1af49.js"></script>
       </body>
     </html>
   );
