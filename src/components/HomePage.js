@@ -862,7 +862,7 @@ export default function HomePage() {
                                                     color: '#ebae3b',
                                                 }}
                                             >
-                                                <MdCameraswitch size={18} />
+                                                <MdCameraswitch size={20} />
                                             </button>
                                             <button
                                                 type="button"
