@@ -10,6 +10,8 @@ import {
     FaSpinner, FaMobile, FaDesktop, FaExclamationCircle,
     FaCalendarAlt
 } from 'react-icons/fa';
+import { MdCameraswitch } from "react-icons/md";
+import { RiCameraOffFill } from "react-icons/ri";
 import { useRouter } from 'next/navigation';
 
 function TasisLoader() {
@@ -860,7 +862,7 @@ export default function HomePage() {
                                                     color: '#ebae3b',
                                                 }}
                                             >
-                                                <FaCamera size={18} />
+                                                <MdCameraswitch size={18} />
                                             </button>
                                             <button
                                                 type="button"
@@ -871,7 +873,7 @@ export default function HomePage() {
                                                     color: '#ef4444',
                                                 }}
                                             >
-                                                <FaExclamationTriangle size={18} />
+                                                <RiCameraOffFill size={18} />
                                             </button>
                                         </div>
                                     </div>
