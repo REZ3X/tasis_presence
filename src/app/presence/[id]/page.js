@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth, AuthProvider } from '@/contexts/AuthContext';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { FaArrowLeft, FaMapMarkerAlt, FaClock, FaUser, FaSpinner, FaDesktop, FaMobile, FaExclamationCircle } from 'react-icons/fa';
@@ -302,6 +302,27 @@ function PresenceDetailContent() {
                             )}
                         </div>
                     </div>
+
+                    <script async="async" data-cfasync="false" src="https://pl28316989.effectivegatecpm.com/487e52acb339c3a0ec406d9715d6faa1/invoke.js"></script>
+                    <div id="container-487e52acb339c3a0ec406d9715d6faa1" />
+
+                    {/* Footer */}
+                    <div className="mt-8 text-center">
+                        <p className="text-xs sm:text-sm font-bold" style={{ color: '#999' }}>
+                            Created by{' '}
+                            <a
+                                href="https://rejaka.id"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-black hover:underline transition-all"
+                                style={{ color: '#ebae3b' }}
+                            >
+                                rejaka.id
+                            </a>
+                            {' '}for TASIS
+                        </p>
+                    </div>
+
                 </div>
             </div>
         </>
