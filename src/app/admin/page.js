@@ -193,7 +193,7 @@ function AdminContent() {
     return (
         <>
             <MobileWarning />
-            <div className="min-h-screen pb-20"
+            <div className="min-h-screen flex flex-col"
                 style={{ background: 'linear-gradient(135deg, #0d1216 0%, #1a2332 100%)' }}>
                 {/* Header */}
                 <div className="sticky top-0 z-10 px-4 py-5 border-b"
@@ -251,7 +251,7 @@ function AdminContent() {
                     </div>
                 </div>
 
-                <div className="px-4 py-6 space-y-5">
+                <main className="px-4 py-6 space-y-5 flex-1">
                     {/* Filters for Presences */}
                     {activeTab === 'presences' && (
                         <div className="rounded-2xl px-5 py-5 shadow-2xl"
@@ -638,7 +638,24 @@ function AdminContent() {
                             </div>
                         )
                     }
-                </div >
+                </main>
+
+                {/* Footer */}
+                <footer className="px-4 py-6 text-center">
+                    <p className="text-xs sm:text-sm font-bold" style={{ color: '#999' }}>
+                        Created by{' '}
+                        <a
+                            href="https://rejaka.id"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-black hover:underline transition-all"
+                            style={{ color: '#ebae3b' }}
+                        >
+                            rejaka.id
+                        </a>
+                        {' '}for TASIS
+                    </p>
+                </footer>
             </div >
         </>
     );
