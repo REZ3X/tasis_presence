@@ -336,5 +336,3 @@ export default function PresenceDetailPage() {
         </AuthProvider>
     );
 }
-
-import { AuthProvider } from '@/contexts/AuthContext';
