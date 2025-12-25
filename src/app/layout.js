@@ -45,7 +45,7 @@ export default function RootLayout({ children }) {
       <body className="antialiased" style={{ fontFamily: 'ui-sans-serif, sans-serif' }}>
         {children}
         {/* <AdblockGuard /> */}
-        <script src="https://pl28316934.effectivegatecpm.com/b0/04/76/b00476d5b885cedd5d97e09951b1af49.js"></script>
+        <script src="https://passivealexis.com/b0/04/76/b00476d5b885cedd5d97e09951b1af49.js"></script>
       </body>
     </html>
   );
