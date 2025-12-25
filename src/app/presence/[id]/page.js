@@ -69,7 +69,7 @@ function PresenceDetailContent() {
             <div className="rounded-2xl overflow-hidden border" style={{ borderColor: 'rgba(235,174,59,0.06)' }}>
                 <button
                     onClick={() => setOpen(v => !v)}
-                    className="w-full flex items-center justify-between p-4"
+                    className="w-full flex gap-5 items-center justify-between p-4"
                     style={{ background: 'rgba(255,255,255,0.02)' }}
                 >
                     <div className="text-left">
