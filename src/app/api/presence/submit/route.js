@@ -33,10 +33,6 @@ export async function POST(request) {
 
         if (imageFile && GOOGLE_SCRIPT_URL) {
             try {
-                const user = await db.collection('users').findOne({
-                    _id: new ObjectId(decoded.id)
-                });
-
                 const arrayBuffer = await imageFile.arrayBuffer();
                 const base64 = Buffer.from(arrayBuffer).toString('base64');
 
@@ -55,9 +51,6 @@ export async function POST(request) {
                         presence: {
                             ...presenceData,
                             username: decoded.username,
-                            name: user?.name || user?.fullName || '',
-                            class: user?.class || user?.kelas || '',
-                            major: user?.major || user?.jurusan || '',
                         },
                     }),
                     redirect: 'follow',
