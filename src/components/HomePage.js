@@ -251,6 +251,7 @@ export default function HomePage() {
     const [selectedCamera, setSelectedCamera] = useState('');
     const [showCameraSelector, setShowCameraSelector] = useState(false);
     const [includeLocation, setIncludeLocation] = useState(true);
+    const [includeDeviceInfo, setIncludeDeviceInfo] = useState(true);
 
     const [historyFilter, setHistoryFilter] = useState({
         picketType: 'all',
@@ -561,7 +562,7 @@ export default function HomePage() {
                 status: late ? 'Terlambat' : 'Tepat Waktu',
                 lateNotes: late ? lateNotes : null,
                 fileName,
-                deviceInfo: {
+                deviceInfo: (user && user.role === 'dev' && !includeDeviceInfo) ? null : {
                     userAgent: typeof navigator !== 'undefined' ? (navigator.userAgent || null) : null,
                     platform: typeof navigator !== 'undefined' ? (navigator.platform || null) : null,
                     languages: typeof navigator !== 'undefined' ? (navigator.languages ? navigator.languages.join(', ') : (navigator.language || null)) : null,
@@ -569,7 +570,7 @@ export default function HomePage() {
                     hardwareConcurrency: typeof navigator !== 'undefined' ? (navigator.hardwareConcurrency || null) : null,
                     maxTouchPoints: typeof navigator !== 'undefined' ? (navigator.maxTouchPoints || null) : null,
                     vendor: typeof navigator !== 'undefined' ? (navigator.vendor || null) : null,
-                },
+                }
             };
 
             formData.append('presenceData', JSON.stringify(presenceData));
@@ -762,14 +763,37 @@ export default function HomePage() {
 
                             {/* Location Info */}
                             {user && user.role === 'dev' ? (
-                                <div className="space-y-2">
+                                <div className="space-y-3">
                                     <div className="flex items-center justify-between">
-                                        <p className="text-sm font-medium" style={{ color: '#e5e7eb' }}>Lokasi</p>
-                                        <div className="flex items-center gap-2 text-xs">
-                                            <label className="flex items-center gap-2">
-                                                <input type="checkbox" checked={includeLocation} onChange={(e) => setIncludeLocation(e.target.checked)} />
-                                                <span style={{ color: '#9ca3af' }}>Sertakan lokasi</span>
-                                            </label>
+                                        <p className="text-sm font-medium" style={{ color: '#e5e7eb' }}>Preferensi Dev</p>
+                                        <div className="flex items-center gap-2 text-sm">
+                                            <button
+                                                type="button"
+                                                onClick={() => setIncludeLocation(v => !v)}
+                                                className={`px-3 py-1 rounded-full font-semibold transition-all flex items-center gap-2 ${includeLocation ? '' : 'opacity-60'}`}
+                                                style={{
+                                                    background: includeLocation ? 'rgba(59, 130, 246, 0.15)' : 'transparent',
+                                                    color: includeLocation ? '#60a5fa' : '#9ca3af',
+                                                    border: includeLocation ? '1px solid rgba(59,130,246,0.25)' : '1px solid rgba(255,255,255,0.04)'
+                                                }}
+                                            >
+                                                <span style={{ fontSize: 12 }}>{includeLocation ? '✓' : '○'}</span>
+                                                <span>Sertakan lokasi</span>
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => setIncludeDeviceInfo(v => !v)}
+                                                className={`px-3 py-1 rounded-full font-semibold transition-all flex items-center gap-2 ${includeDeviceInfo ? '' : 'opacity-60'}`}
+                                                style={{
+                                                    background: includeDeviceInfo ? 'rgba(235,174,59,0.12)' : 'transparent',
+                                                    color: includeDeviceInfo ? '#ebae3b' : '#9ca3af',
+                                                    border: includeDeviceInfo ? '1px solid rgba(235,174,59,0.18)' : '1px solid rgba(255,255,255,0.04)'
+                                                }}
+                                            >
+                                                <span style={{ fontSize: 12 }}>{includeDeviceInfo ? '✓' : '○'}</span>
+                                                <span>Sertakan device info</span>
+                                            </button>
                                         </div>
                                     </div>
 
@@ -969,7 +993,7 @@ export default function HomePage() {
                             </div>
 
                             {/* Submit Button */}
-                            < button
+                            <button
                                 type="submit"
                                 disabled={submitting || !capturedImage || picketType === 'choose'}
                                 className="w-full py-4 rounded-lg font-bold text-lg transition-all disabled:opacity-50"
