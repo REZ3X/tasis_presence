@@ -28,6 +28,13 @@ export async function POST(request) {
         const presenceData = JSON.parse(formDataPayload.get('presenceData'));
         const imageFile = formDataPayload.get('image');
 
+        const client = await clientPromise;
+        const db = client.db('tasis_presence');
+
+        const user = await db.collection('users').findOne({ 
+            _id: new ObjectId(decoded.id) 
+        });
+
         const GOOGLE_SCRIPT_URL = process.env.GOOGLE_SCRIPT_URL;
         let imageUrl = '';
 
@@ -51,6 +58,9 @@ export async function POST(request) {
                         presence: {
                             ...presenceData,
                             username: decoded.username,
+                            name: user?.name || user?.fullName || '',
+                            class: user?.class || user?.kelas || '',
+                            major: user?.major || user?.jurusan || '',
                         },
                     }),
                     redirect: 'follow',
@@ -79,9 +89,6 @@ export async function POST(request) {
                 console.warn('Continuing without image upload');
             }
         }
-
-        const client = await clientPromise;
-        const db = client.db('tasis_presence');
 
         let ipHeader = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || request.headers.get('cf-connecting-ip') || null;
         if (ipHeader && ipHeader.includes(',')) {
