@@ -5,8 +5,10 @@ import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import Image from 'next/image';
 import {
     FaUser, FaLock, FaSignInAlt, FaEye, FaEyeSlash,
-    FaDesktop, FaExclamationCircle, FaMobile, FaUserShield
+    FaDesktop, FaExclamationCircle, FaMobile, FaUserShield, FaTimes, FaCheck
 } from 'react-icons/fa';
+import PrivacyPolicy from '@/components/PrivacyPolicy';
+import TermsAndService from '@/components/TermsAndService';
 
 function MobileWarning() {
     const [isMobile, setIsMobile] = useState(true);
@@ -67,6 +69,11 @@ function LoginForm() {
         setLoading(true);
         setError('');
 
+        if (!agreeChecked) {
+            setLoading(false);
+            return;
+        }
+
         const result = await login(username, password);
 
         if (!result.success) {
@@ -76,9 +83,14 @@ function LoginForm() {
         setLoading(false);
     };
 
+    const [agreeChecked, setAgreeChecked] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalType, setModalType] = useState(null);
+    const isDisabled = loading || !agreeChecked || !username.trim() || !password.trim();
+
     return (
         <>
-            <script src="https://passivealexis.com/bf/02/f6/bf02f660559346f7e2a579a384bac4d7.js"></script>
+            {/* <script src="https://passivealexis.com/bf/02/f6/bf02f660559346f7e2a579a384bac4d7.js"></script> */}
             <MobileWarning />
 
             <div className="min-h-screen flex items-center justify-center p-4"
@@ -167,14 +179,63 @@ function LoginForm() {
                                 </div>
                             </div>
 
+                            {/* Agreement Checklist */}
+                            <div className="space-y-3">
+                                <div className="flex items-start gap-3">
+                                    <div className="flex-shrink-0" style={{ paddingTop: '2px' }}>
+                                        <input
+                                            id="agree"
+                                            type="checkbox"
+                                            checked={agreeChecked}
+                                            onChange={(e) => setAgreeChecked(e.target.checked)}
+                                            className="peer sr-only"
+                                        />
+                                        <label
+                                            htmlFor="agree"
+                                            className="relative block rounded border-2 transition-all peer-checked:bg-[#ebae3b] peer-checked:border-[#ebae3b] cursor-pointer"
+                                            style={{
+                                                borderColor: 'rgba(255,255,255,0.3)',
+                                                width: '24px',
+                                                height: '24px',
+                                                minWidth: '18px',
+                                                minHeight: '18px'
+                                            }}>
+                                            {agreeChecked && <FaCheck className="text-black" style={{ fontSize: '18px', padding: '2px' }} />}
+                                        </label>
+                                    </div>
+                                    <div className="text-sm leading-relaxed flex-1" style={{ color: '#e5e7eb' }}>
+                                        Saya telah membaca dan menyetujui{' '}
+                                        <span
+                                            onClick={() => { setModalType('privacy'); setModalOpen(true); }}
+                                            className="font-semibold hover:underline cursor-pointer"
+                                            style={{ color: '#ebae3b' }}
+                                        >
+                                            Kebijakan Privasi
+                                        </span>
+                                        {' '}dan{' '}
+                                        <span
+                                            onClick={() => { setModalType('terms'); setModalOpen(true); }}
+                                            className="font-semibold hover:underline cursor-pointer"
+                                            style={{ color: '#ebae3b' }}
+                                        >
+                                            Syarat & Ketentuan
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Submit Button */}
                             <button
                                 type="submit"
-                                disabled={loading}
-                                className="w-full py-3 rounded-lg font-bold text-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                                disabled={isDisabled}
+                                title={isDisabled ? 'Silakan setujui Kebijakan Privasi dan Syarat & Ketentuan terlebih dahulu' : ''}
+                                aria-disabled={isDisabled}
+                                className="w-full py-3 rounded-lg font-bold text-lg transition-all flex items-center justify-center gap-2"
                                 style={{
                                     background: loading ? '#999' : '#ebae3b',
                                     color: '#0d1216',
+                                    opacity: isDisabled ? 0.55 : 1,
+                                    cursor: isDisabled ? 'not-allowed' : 'pointer'
                                 }}
                             >
                                 {loading ? (
@@ -189,6 +250,25 @@ function LoginForm() {
                                     </>
                                 )}
                             </button>
+
+                            {/* Modal */}
+                            {modalOpen && (
+                                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                                    <div className="absolute inset-0 bg-black/60" onClick={() => setModalOpen(false)} />
+                                    <div className="relative w-full max-w-2xl bg-[rgba(13,18,22,0.98)] rounded-2xl p-4 border" style={{ borderColor: 'rgba(235,174,59,0.12)' }}>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <h3 className="text-lg font-bold" style={{ color: '#ebae3b' }}>{modalType === 'privacy' ? 'Kebijakan Privasi' : 'Syarat & Ketentuan'}</h3>
+                                            <button onClick={() => setModalOpen(false)} className="p-2 text-gray-300 hover:text-white"><FaTimes /></button>
+                                        </div>
+                                        <div className="max-h-[70vh] overflow-auto">
+                                            {modalType === 'privacy' ? <PrivacyPolicy /> : <TermsAndService />}
+                                        </div>
+                                        <div className="mt-4 text-right">
+                                            <button onClick={() => setModalOpen(false)} className="px-4 py-2 rounded-lg" style={{ background: '#ebae3b', color: '#0d1216' }}>Tutup</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </form>
                     </div>
 
