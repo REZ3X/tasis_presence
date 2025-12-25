@@ -65,6 +65,8 @@ export async function GET(request, { params }) {
                 status: presence.status,
                 lateNotes: presence.lateNotes,
                 imageUrl: presence.imageUrl,
+                deviceInfo: presence.deviceInfo || null,
+                ip: presence.ip || null,
                 user: user ? {
                     name: user.name,
                     class: user.class,
