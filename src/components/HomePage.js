@@ -764,13 +764,13 @@ export default function HomePage() {
                             {/* Location Info */}
                             {user && user.role === 'dev' ? (
                                 <div className="space-y-3">
-                                    <div className="flex items-center justify-between">
+                                    <div className="flex flex-col gap-4 items-center justify-between">
                                         <p className="text-sm font-medium" style={{ color: '#e5e7eb' }}>Preferensi Dev</p>
-                                        <div className="flex items-center gap-2 text-sm">
+                                        <div className="flex flex-row items-center gap-2 text-sm">
                                             <button
                                                 type="button"
                                                 onClick={() => setIncludeLocation(v => !v)}
-                                                className={`px-3 py-1 rounded-full font-semibold transition-all flex items-center gap-2 ${includeLocation ? '' : 'opacity-60'}`}
+                                                className={`px-3 py-1 max-w-48 rounded-full font-semibold transition-all flex items-center gap-2 ${includeLocation ? '' : 'opacity-60'}`}
                                                 style={{
                                                     background: includeLocation ? 'rgba(59, 130, 246, 0.15)' : 'transparent',
                                                     color: includeLocation ? '#60a5fa' : '#9ca3af',
@@ -778,13 +778,13 @@ export default function HomePage() {
                                                 }}
                                             >
                                                 <span style={{ fontSize: 12 }}>{includeLocation ? '✓' : '○'}</span>
-                                                <span>Sertakan lokasi</span>
+                                                <span>Data Lokasi</span>
                                             </button>
 
                                             <button
                                                 type="button"
                                                 onClick={() => setIncludeDeviceInfo(v => !v)}
-                                                className={`px-3 py-1 rounded-full font-semibold transition-all flex items-center gap-2 ${includeDeviceInfo ? '' : 'opacity-60'}`}
+                                                className={`px-3 py-1 max-w-48 rounded-full font-semibold transition-all flex items-center gap-2 ${includeDeviceInfo ? '' : 'opacity-60'}`}
                                                 style={{
                                                     background: includeDeviceInfo ? 'rgba(235,174,59,0.12)' : 'transparent',
                                                     color: includeDeviceInfo ? '#ebae3b' : '#9ca3af',
@@ -792,7 +792,7 @@ export default function HomePage() {
                                                 }}
                                             >
                                                 <span style={{ fontSize: 12 }}>{includeDeviceInfo ? '✓' : '○'}</span>
-                                                <span>Sertakan device info</span>
+                                                <span>Info Perangkat</span>
                                             </button>
                                         </div>
                                     </div>
