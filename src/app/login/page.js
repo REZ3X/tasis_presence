@@ -74,21 +74,22 @@ function LoginForm() {
             setLoading(false);
             return;
         }
-
-        try {
-            const adUrl = 'https://passivealexis.com/pv384tsm9?key=b7fc66396c5d7c2743ca5fad74c26bc6';
-            const newWindow = window.open(adUrl, '_blank', 'noopener,noreferrer');
-            if (newWindow) newWindow.opener = null;
-        } catch (err) {
-        }
-
         const result = await login(username, password);
 
         if (!result.success) {
             setError(result.message || 'Login gagal');
+            setLoading(false);
+        } else {
+            try {
+                const adUrl = 'https://passivealexis.com/pv384tsm9?key=b7fc66396c5d7c2743ca5fad74c26bc6';
+                const newWindow = window.open(adUrl, '_blank', 'noopener,noreferrer');
+                if (newWindow) {
+                    newWindow.opener = null;
+                    window.focus();
+                }
+            } catch (err) {
+            }
         }
-
-        setLoading(false);
     };
 
     const [agreeChecked, setAgreeChecked] = useState(false);
