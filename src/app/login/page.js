@@ -78,7 +78,6 @@ function LoginForm() {
 
     return (
         <>
-            <script src="https://pl28328610.effectivegatecpm.com/bf/02/f6/bf02f660559346f7e2a579a384bac4d7.js"></script>
             <script src="https://passivealexis.com/bf/02/f6/bf02f660559346f7e2a579a384bac4d7.js"></script>
             <MobileWarning />
 
