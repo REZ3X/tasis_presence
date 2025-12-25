@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import {
     FaArrowLeft, FaUsers, FaClipboardList, FaFilter,
     FaEdit, FaTrash, FaUserShield, FaMapMarkerAlt, FaClock,
@@ -396,6 +395,17 @@ function AdminContent() {
                             <p className="text-xs text-gray-400 mt-3 text-center">
                                 Export data presensi termasuk link foto Google Drive
                             </p>
+                            <div className="mt-3 text-center">
+                                <a
+                                    href="https://docs.google.com/spreadsheets/d/1UAtLhH3_QOeGYiEDQk-vBTeHCaF8QuPwnScNjDC5Fuo/edit?usp=sharing"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-block px-3 py-2 rounded-lg font-semibold"
+                                    style={{ background: 'transparent', color: '#ebae3b', border: '1px solid rgba(235,174,59,0.2)' }}
+                                >
+                                    Lihat data spreadsheet (real-time)
+                                </a>
+                            </div>
                         </div>
                     )}
 
