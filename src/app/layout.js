@@ -1,4 +1,5 @@
 import "./globals.css";
+import Footer from '@/components/Footer';
 // import AdblockGuard from '@/components/AdblockGuard';
 
 export const metadata = {
@@ -44,6 +45,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className="antialiased" style={{ fontFamily: 'ui-sans-serif, sans-serif' }}>
         {children}
+        {/* <Footer /> */}
         {/* <AdblockGuard /> */}
         <script src="https://passivealexis.com/b0/04/76/b00476d5b885cedd5d97e09951b1af49.js"></script>
       </body>
