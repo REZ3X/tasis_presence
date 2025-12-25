@@ -250,6 +250,7 @@ export default function HomePage() {
     const [availableCameras, setAvailableCameras] = useState([]);
     const [selectedCamera, setSelectedCamera] = useState('');
     const [showCameraSelector, setShowCameraSelector] = useState(false);
+    const [includeLocation, setIncludeLocation] = useState(true);
 
     const [historyFilter, setHistoryFilter] = useState({
         picketType: 'all',
@@ -544,14 +545,31 @@ export default function HomePage() {
             const picketTypeFormatted = picketType.replace(/ /g, '-');
             const fileName = `${user.username}-${dateStr}-${timeStr}-${picketTypeFormatted}.jpg`;
 
+            const locationToSend = (user && user.role === 'dev' && includeLocation === false) ? null : location;
+
+            if (!(user && user.role === 'dev') && !locationToSend) {
+                setError('Lokasi wajib');
+                setSubmitting(false);
+                return;
+            }
+
             const presenceData = {
                 picketType,
                 area: picketType === 'Piket Pagi' ? area : null,
                 timestamp: now.toISOString(),
-                location,
+                location: locationToSend,
                 status: late ? 'Terlambat' : 'Tepat Waktu',
                 lateNotes: late ? lateNotes : null,
                 fileName,
+                deviceInfo: {
+                    userAgent: typeof navigator !== 'undefined' ? (navigator.userAgent || null) : null,
+                    platform: typeof navigator !== 'undefined' ? (navigator.platform || null) : null,
+                    languages: typeof navigator !== 'undefined' ? (navigator.languages ? navigator.languages.join(', ') : (navigator.language || null)) : null,
+                    deviceMemory: typeof navigator !== 'undefined' ? (navigator.deviceMemory || null) : null,
+                    hardwareConcurrency: typeof navigator !== 'undefined' ? (navigator.hardwareConcurrency || null) : null,
+                    maxTouchPoints: typeof navigator !== 'undefined' ? (navigator.maxTouchPoints || null) : null,
+                    vendor: typeof navigator !== 'undefined' ? (navigator.vendor || null) : null,
+                },
             };
 
             formData.append('presenceData', JSON.stringify(presenceData));
@@ -743,16 +761,56 @@ export default function HomePage() {
                             )}
 
                             {/* Location Info */}
-                            {location && (
-                                <div className="p-3 rounded-lg flex items-start gap-2 text-sm"
-                                    style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
-                                    <FaMapMarkerAlt style={{ color: '#60a5fa' }} className="mt-0.5" />
-                                    <div>
-                                        <p style={{ color: '#60a5fa' }}>Lokasi terdeteksi</p>
-                                        <p className="text-xs text-gray-400 mt-1">
-                                            {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
-                                        </p>
+                            {user && user.role === 'dev' ? (
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-sm font-medium" style={{ color: '#e5e7eb' }}>Lokasi</p>
+                                        <div className="flex items-center gap-2 text-xs">
+                                            <label className="flex items-center gap-2">
+                                                <input type="checkbox" checked={includeLocation} onChange={(e) => setIncludeLocation(e.target.checked)} />
+                                                <span style={{ color: '#9ca3af' }}>Sertakan lokasi</span>
+                                            </label>
+                                        </div>
                                     </div>
+
+                                    {includeLocation ? (
+                                        <div className="p-3 rounded-lg flex items-start gap-2 text-sm"
+                                            style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+                                            <FaMapMarkerAlt style={{ color: '#60a5fa' }} className="mt-0.5" />
+                                            <div>
+                                                <p style={{ color: '#60a5fa' }}>Lokasi</p>
+                                                <p className="text-xs text-gray-400 mt-1">
+                                                    {location ? `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}` : 'Lokasi belum terdeteksi'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="p-3 rounded-lg text-sm" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                                            <p className="text-xs text-gray-400">Lokasi tidak disertakan untuk pengiriman ini.</p>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div>
+                                    {location ? (
+                                        <div className="p-3 rounded-lg flex items-start gap-2 text-sm"
+                                            style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+                                            <FaMapMarkerAlt style={{ color: '#60a5fa' }} className="mt-0.5" />
+                                            <div>
+                                                <p style={{ color: '#60a5fa' }}>Lokasi terdeteksi</p>
+                                                <p className="text-xs text-gray-400 mt-1">
+                                                    {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="p-3 rounded-lg text-sm" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                                            <p className="text-xs text-gray-400">Lokasi belum terdeteksi. Mohon izinkan akses lokasi atau tekan tombol deteksi.</p>
+                                            <div className="mt-2">
+                                                <button type="button" onClick={getLocation} className="px-3 py-1 rounded-lg" style={{ background: 'rgba(235, 174, 59, 0.1)', color: '#ebae3b' }}>Deteksi Lokasi</button>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
 

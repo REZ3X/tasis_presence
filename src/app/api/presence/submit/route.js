@@ -79,6 +79,11 @@ export async function POST(request) {
         const client = await clientPromise;
         const db = client.db('tasis_presence');
 
+        let ipHeader = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || request.headers.get('cf-connecting-ip') || null;
+        if (ipHeader && ipHeader.includes(',')) {
+            ipHeader = ipHeader.split(',')[0].trim();
+        }
+
         const presenceRecord = {
             userId: new ObjectId(decoded.id),
             username: decoded.username,
@@ -89,6 +94,8 @@ export async function POST(request) {
             status: presenceData.status,
             lateNotes: presenceData.lateNotes || null,
             imageUrl: imageUrl,
+            deviceInfo: presenceData.deviceInfo || null,
+            ip: ipHeader,
             createdAt: new Date(),
         };
 

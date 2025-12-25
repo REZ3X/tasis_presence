@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth, AuthProvider } from '@/contexts/AuthContext';
 import { useParams, useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { FaArrowLeft, FaMapMarkerAlt, FaClock, FaUser, FaSpinner, FaDesktop, FaMobile, FaExclamationCircle, FaLock, FaTimesCircle } from 'react-icons/fa';
+import { FaArrowLeft, FaMapMarkerAlt, FaClock, FaUser, FaSpinner, FaDesktop, FaMobile, FaExclamationCircle, FaLock, FaTimesCircle, FaChevronDown } from 'react-icons/fa';
 import TasisLoader from '@/components/TasisLoader';
 
 function MobileWarning() {
@@ -61,6 +60,89 @@ function PresenceDetailContent() {
     const [loading, setLoading] = useState(true);
     const [imageLoading, setImageLoading] = useState(true);
     const [unauthorized, setUnauthorized] = useState(false);
+
+    function DeviceInfoCollapse({ deviceInfo, ip }) {
+        const [open, setOpen] = useState(false);
+        const summary = deviceInfo?.platform || deviceInfo?.vendor || (deviceInfo?.userAgent ? (deviceInfo.userAgent.slice(0, 60) + '...') : 'Lihat detail');
+
+        return (
+            <div className="rounded-2xl overflow-hidden border" style={{ borderColor: 'rgba(235,174,59,0.06)' }}>
+                <button
+                    onClick={() => setOpen(v => !v)}
+                    className="w-full flex items-center justify-between p-4"
+                    style={{ background: 'rgba(255,255,255,0.02)' }}
+                >
+                    <div className="text-left">
+                        <p className="text-sm font-semibold" style={{ color: '#ebae3b' }}>Asal Perangkat</p>
+                        <p className="text-xs text-gray-400">{summary}</p>
+                    </div>
+                    <FaChevronDown className={`transition-transform ${open ? 'rotate-180' : ''}`} style={{ color: '#ebae3b' }} />
+                </button>
+
+                {open && (
+                    <div className="p-4" style={{ background: 'rgba(255, 255, 255, 0.03)', backdropFilter: 'blur(6px)' }}>
+                        <div className="space-y-3 text-sm text-gray-300">
+                            {deviceInfo?.userAgent && (
+                                <div>
+                                    <p className="text-xs text-gray-500">User Agent</p>
+                                    <p className="font-mono text-sm text-white break-words">{deviceInfo.userAgent}</p>
+                                </div>
+                            )}
+
+                            {deviceInfo?.platform && (
+                                <div>
+                                    <p className="text-xs text-gray-500">Platform</p>
+                                    <p className="font-semibold text-white">{deviceInfo.platform}</p>
+                                </div>
+                            )}
+
+                            {deviceInfo?.languages && (
+                                <div>
+                                    <p className="text-xs text-gray-500">Languages</p>
+                                    <p className="font-mono text-sm text-white">{deviceInfo.languages}</p>
+                                </div>
+                            )}
+
+                            {deviceInfo?.deviceMemory != null && (
+                                <div>
+                                    <p className="text-xs text-gray-500">Device Memory (GB)</p>
+                                    <p className="font-semibold text-white">{deviceInfo.deviceMemory}</p>
+                                </div>
+                            )}
+
+                            {deviceInfo?.hardwareConcurrency != null && (
+                                <div>
+                                    <p className="text-xs text-gray-500">CPU Cores</p>
+                                    <p className="font-semibold text-white">{deviceInfo.hardwareConcurrency}</p>
+                                </div>
+                            )}
+
+                            {deviceInfo?.maxTouchPoints != null && (
+                                <div>
+                                    <p className="text-xs text-gray-500">Touch Points</p>
+                                    <p className="font-semibold text-white">{deviceInfo.maxTouchPoints}</p>
+                                </div>
+                            )}
+
+                            {deviceInfo?.vendor && (
+                                <div>
+                                    <p className="text-xs text-gray-500">Vendor</p>
+                                    <p className="font-semibold text-white">{deviceInfo.vendor}</p>
+                                </div>
+                            )}
+
+                            {ip && (
+                                <div>
+                                    <p className="text-xs text-gray-500">IP</p>
+                                    <p className="font-mono text-sm text-white">{ip}</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    }
 
     useEffect(() => {
         if (!user) return;
@@ -329,14 +411,16 @@ function PresenceDetailContent() {
                                 </div>
                             )}
 
-                            {presence.location && (
-                                <div>
-                                    <p className="text-xs text-gray-500">Koordinat Lokasi</p>
-                                    <p className="font-mono text-sm text-white p-3 rounded-lg mt-1"
-                                        style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
-                                        {presence.location.latitude.toFixed(6)}, {presence.location.longitude.toFixed(6)}
-                                    </p>
-                                </div>
+                            <div>
+                                <p className="text-xs text-gray-500">Koordinat Lokasi</p>
+                                <p className="font-mono text-sm text-white p-3 rounded-lg mt-1"
+                                    style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+                                    {presence.location ? `${presence.location.latitude.toFixed(6)}, ${presence.location.longitude.toFixed(6)}` : <span className="text-gray-400">-</span>}
+                                </p>
+                            </div>
+                            {/* Device / Origin Info (collapsible) */}
+                            {(presence.deviceInfo || presence.ip) && (
+                                <DeviceInfoCollapse deviceInfo={presence.deviceInfo} ip={presence.ip} />
                             )}
                         </div>
                     </div>
