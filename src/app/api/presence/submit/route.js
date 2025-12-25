@@ -35,6 +35,12 @@ export async function POST(request) {
             _id: new ObjectId(decoded.id) 
         });
 
+        console.log('User fetched from DB:', user ? {
+            name: user.name || user.fullName,
+            class: user.class || user.kelas,
+            major: user.major || user.jurusan
+        } : 'User not found');
+
         const GOOGLE_SCRIPT_URL = process.env.GOOGLE_SCRIPT_URL;
         let imageUrl = '';
 
@@ -45,24 +51,32 @@ export async function POST(request) {
 
                 console.log('Uploading to Google Script:', GOOGLE_SCRIPT_URL);
 
+                const uploadPayload = {
+                    type: 'presence',
+                    fileName: presenceData.fileName,
+                    mimeType: imageFile.type,
+                    data: base64,
+                    presence: {
+                        ...presenceData,
+                        username: decoded.username,
+                        name: user?.name || user?.fullName || '',
+                        class: user?.class || user?.kelas || '',
+                        major: user?.major || user?.jurusan || '',
+                    },
+                };
+
+                console.log('Upload payload (without image data):', {
+                    ...uploadPayload,
+                    data: '[BASE64_DATA]',
+                    presence: uploadPayload.presence
+                });
+
                 const uploadResponse = await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        type: 'presence',
-                        fileName: presenceData.fileName,
-                        mimeType: imageFile.type,
-                        data: base64,
-                        presence: {
-                            ...presenceData,
-                            username: decoded.username,
-                            name: user?.name || user?.fullName || '',
-                            class: user?.class || user?.kelas || '',
-                            major: user?.major || user?.jurusan || '',
-                        },
-                    }),
+                    body: JSON.stringify(uploadPayload),
                     redirect: 'follow',
                 });
 
@@ -73,6 +87,14 @@ export async function POST(request) {
                 if (contentType && contentType.includes('application/json')) {
                     const uploadResult = await uploadResponse.json();
                     console.log('Upload result:', uploadResult);
+                    
+                    if (uploadResult.debug) {
+                        console.log('=== GOOGLE SCRIPT DEBUG INFO ===');
+                        console.log('Debug logs:', uploadResult.debug.logs);
+                        console.log('Spreadsheet success:', uploadResult.debug.spreadsheetSuccess);
+                        console.log('Spreadsheet error:', uploadResult.debug.spreadsheetError);
+                        console.log('================================');
+                    }
 
                     if (uploadResult.success) {
                         imageUrl = uploadResult.url;
