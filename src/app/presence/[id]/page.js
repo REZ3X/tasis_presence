@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth, AuthProvider } from '@/contexts/AuthContext';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { FaArrowLeft, FaMapMarkerAlt, FaClock, FaUser, FaSpinner, FaDesktop, FaMobile, FaExclamationCircle } from 'react-icons/fa';
+import { FaArrowLeft, FaMapMarkerAlt, FaClock, FaUser, FaSpinner, FaDesktop, FaMobile, FaExclamationCircle, FaLock, FaTimesCircle } from 'react-icons/fa';
 import TasisLoader from '@/components/TasisLoader';
 
 function MobileWarning() {
@@ -54,16 +54,19 @@ function MobileWarning() {
 }
 
 function PresenceDetailContent() {
-    const { getToken } = useAuth();
+    const { getToken, user } = useAuth();
     const params = useParams();
     const router = useRouter();
     const [presence, setPresence] = useState(null);
     const [loading, setLoading] = useState(true);
     const [imageLoading, setImageLoading] = useState(true);
+    const [unauthorized, setUnauthorized] = useState(false);
 
     useEffect(() => {
+        if (!user) return;
         fetchPresenceDetail();
-    }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user, params.id]);
 
     const fetchPresenceDetail = async () => {
         try {
@@ -78,6 +81,17 @@ function PresenceDetailContent() {
                 const data = await response.json();
                 console.log('Presence data:', data.presence);
                 console.log('Image URL:', data.presence.imageUrl);
+
+                const isStaffOrDev = user && (user.role === 'staff' || user.role === 'dev');
+                const isOwner = user && data.presence && data.presence.username === user.username;
+
+                if (!isStaffOrDev && !isOwner) {
+                    setUnauthorized(true);
+                    setPresence(null);
+                    setLoading(false);
+                    return;
+                }
+
                 setPresence(data.presence);
             }
         } catch (error) {
@@ -96,12 +110,36 @@ function PresenceDetailContent() {
         );
     }
 
+    if (unauthorized) {
+        return (
+            <div className="min-h-screen flex items-center justify-center p-4"
+                style={{ background: 'linear-gradient(135deg, #0d1216 0%, #1a2332 100%)' }}>
+                <div className="text-center max-w-md p-6 rounded-2xl" style={{ background: 'rgba(26,35,50,0.95)', border: '2px solid #ebae3b' }}>
+                    <div className="mb-4 flex items-center justify-center">
+                        <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: 'rgba(235,174,59,0.08)', border: '2px solid #ebae3b' }}>
+                            <FaLock className="text-2xl" style={{ color: '#ebae3b' }} />
+                        </div>
+                    </div>
+                    <h2 className="text-lg font-bold mb-2" style={{ color: '#ebae3b' }}>Akses ditolak</h2>
+                    <p className="mb-4" style={{ color: '#9ca3af' }}>Anda tidak memiliki izin untuk melihat presensi ini.</p>
+                    <div className="flex justify-center gap-3">
+                        <button onClick={() => router.back()} className="px-4 py-2 rounded-lg" style={{ background: '#ebae3b', color: '#0d1216' }}>Kembali</button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     if (!presence) {
         return (
             <div className="min-h-screen flex items-center justify-center p-4"
                 style={{ background: 'linear-gradient(135deg, #0d1216 0%, #1a2332 100%)' }}>
                 <div className="text-center">
-                    <div className="text-4xl mb-4">❌</div>
+                    <div className="mb-4 flex items-center justify-center">
+                        <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: 'rgba(239,68,68,0.06)', border: '2px solid rgba(239,68,68,0.18)' }}>
+                            <FaTimesCircle className="text-2xl" style={{ color: '#ef4444' }} />
+                        </div>
+                    </div>
                     <p style={{ color: '#ef4444' }}>Presensi tidak ditemukan</p>
                 </div>
             </div>
