@@ -55,7 +55,7 @@ function MobileWarning() {
     if (isMobile) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4"
             style={{ background: 'rgba(13, 18, 22, 0.98)', backdropFilter: 'blur(10px)' }}>
             <div className="text-center max-w-md rounded-2xl p-8"
                 style={{ background: 'rgba(26, 35, 50, 0.95)', border: '2px solid #ebae3b' }}>
