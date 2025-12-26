@@ -5,6 +5,9 @@ import { useAuth, AuthProvider } from '@/contexts/AuthContext';
 import { useParams, useRouter } from 'next/navigation';
 import { FaArrowLeft, FaMapMarkerAlt, FaClock, FaUser, FaSpinner, FaDesktop, FaMobile, FaExclamationCircle, FaLock, FaTimesCircle, FaChevronDown } from 'react-icons/fa';
 import TasisLoader from '@/components/TasisLoader';
+import Modal from '@/components/Modal';
+import PrivacyPolicy from '@/components/PrivacyPolicy';
+import TermsAndService from '@/components/TermsAndService';
 
 function MobileWarning() {
     const [isMobile, setIsMobile] = useState(true);
@@ -60,6 +63,8 @@ function PresenceDetailContent() {
     const [loading, setLoading] = useState(true);
     const [imageLoading, setImageLoading] = useState(true);
     const [unauthorized, setUnauthorized] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalType, setModalType] = useState(null);
 
     function DeviceInfoCollapse({ deviceInfo, ip }) {
         const [open, setOpen] = useState(false);
@@ -428,8 +433,35 @@ function PresenceDetailContent() {
                     <script async="async" data-cfasync="false" src="https://passivealexis.com/487e52acb339c3a0ec406d9715d6faa1/invoke.js"></script>
                     <div id="container-487e52acb339c3a0ec406d9715d6faa1" />
 
+                    <Modal
+                        open={modalOpen}
+                        onClose={() => setModalOpen(false)}
+                        title={modalType === 'privacy' ? 'Kebijakan Privasi' : 'Syarat & Ketentuan'}
+                        className="max-w-3xl"
+                        style={{ zIndex: 10000 }}
+                    >
+                        {modalType === 'privacy' ? <PrivacyPolicy /> : <TermsAndService />}
+                    </Modal>
+
                     {/* Footer */}
                     <div className="mt-8 text-center">
+                        <div className="text-xs leading-relaxed flex-1" style={{ color: '#e5e7eb' }}>
+                            <span
+                                onClick={() => { setModalType('privacy'); setModalOpen(true); }}
+                                className="font-semibold hover:underline cursor-pointer"
+                                style={{ color: '#ebae3b' }}
+                            >
+                                Kebijakan Privasi
+                            </span>
+                            {' '}|{' '}
+                            <span
+                                onClick={() => { setModalType('terms'); setModalOpen(true); }}
+                                className="font-semibold hover:underline cursor-pointer"
+                                style={{ color: '#ebae3b' }}
+                            >
+                                Syarat & Ketentuan
+                            </span>
+                        </div>
                         <p className="text-xs sm:text-sm font-bold" style={{ color: '#999' }}>
                             Created by{' '}
                             <a

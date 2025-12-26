@@ -5,6 +5,9 @@ import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { useParams, useRouter } from 'next/navigation';
 import { FaArrowLeft, FaSave } from 'react-icons/fa';
 import TasisLoader from '@/components/TasisLoader';
+import Modal from '@/components/Modal';
+import PrivacyPolicy from '@/components/PrivacyPolicy';
+import TermsAndService from '@/components/TermsAndService';
 
 function EditUserContent() {
     const { user: currentUser, getToken } = useAuth();
@@ -23,6 +26,8 @@ function EditUserContent() {
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalType, setModalType] = useState(null);
 
     useEffect(() => {
         if (currentUser) {
@@ -279,6 +284,50 @@ function EditUserContent() {
                         {saving ? 'Menyimpan...' : 'Simpan Perubahan'}
                     </button>
                 </form>
+
+                <Modal
+                    open={modalOpen}
+                    onClose={() => setModalOpen(false)}
+                    title={modalType === 'privacy' ? 'Kebijakan Privasi' : 'Syarat & Ketentuan'}
+                    className="max-w-3xl"
+                    style={{ zIndex: 10000 }}
+                >
+                    {modalType === 'privacy' ? <PrivacyPolicy /> : <TermsAndService />}
+                </Modal>
+
+                {/* Footer */}
+                <div className="mt-8 text-center">
+                    <div className="text-xs leading-relaxed flex-1" style={{ color: '#e5e7eb' }}>
+                        <span
+                            onClick={() => { setModalType('privacy'); setModalOpen(true); }}
+                            className="font-semibold hover:underline cursor-pointer"
+                            style={{ color: '#ebae3b' }}
+                        >
+                            Kebijakan Privasi
+                        </span>
+                        {' '}|{' '}
+                        <span
+                            onClick={() => { setModalType('terms'); setModalOpen(true); }}
+                            className="font-semibold hover:underline cursor-pointer"
+                            style={{ color: '#ebae3b' }}
+                        >
+                            Syarat & Ketentuan
+                        </span>
+                    </div>
+                    <p className="text-xs sm:text-sm font-bold" style={{ color: '#999' }}>
+                        Created by{' '}
+                        <a
+                            href="https://rejaka.id"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-black hover:underline transition-all"
+                            style={{ color: '#ebae3b' }}
+                        >
+                            rejaka.id
+                        </a>
+                        {' '}for TASIS
+                    </p>
+                </div>
             </div>
         </div>
     );

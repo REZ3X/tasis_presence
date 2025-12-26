@@ -9,6 +9,9 @@ import {
     FaDownload, FaSpinner, FaFileExcel, FaDesktop, FaMobile, FaExclamationCircle
 } from 'react-icons/fa';
 import TasisLoader from '@/components/TasisLoader';
+import Modal from '@/components/Modal';
+import PrivacyPolicy from '@/components/PrivacyPolicy';
+import TermsAndService from '@/components/TermsAndService';
 
 function MobileWarning() {
     const [isMobile, setIsMobile] = useState(true);
@@ -67,12 +70,16 @@ function AdminContent() {
     const [exporting, setExporting] = useState(false);
     const [exportMonth, setExportMonth] = useState(new Date().getMonth() + 1);
     const [exportYear, setExportYear] = useState(new Date().getFullYear());
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalType, setModalType] = useState(null);
     const [filter, setFilter] = useState({
         picketType: 'all',
         status: 'all',
         startDate: '',
         endDate: '',
     });
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 10;
 
     useEffect(() => {
         if (user) {
@@ -83,6 +90,10 @@ function AdminContent() {
             fetchData();
         }
     }, [user, activeTab, filter]);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [activeTab, filter, userSearch]);
 
     const fetchData = async () => {
         setLoading(true);
@@ -131,6 +142,125 @@ function AdminContent() {
             (u.major || '').toLowerCase().includes(q)
         );
     });
+
+    const totalPages = activeTab === 'presences'
+        ? Math.ceil(presences.length / ITEMS_PER_PAGE)
+        : Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
+
+    const paginatedPresences = presences.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+
+    const paginatedUsers = filteredUsers.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+
+    const renderPagination = () => {
+        if (totalPages <= 1) return null;
+
+        const pages = [];
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        if (endPage - startPage < maxVisiblePages - 1) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            pages.push(i);
+        }
+
+        return (
+            <div className="flex items-center justify-center gap-2 mt-6 mb-4">
+                <button
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-2 rounded-lg text-sm font-bold transition-all disabled:opacity-30"
+                    style={{
+                        background: 'rgba(235, 174, 59, 0.2)',
+                        color: '#ebae3b',
+                        border: '1px solid rgba(235, 174, 59, 0.3)'
+                    }}
+                >
+                    ←
+                </button>
+
+                {startPage > 1 && (
+                    <>
+                        <button
+                            onClick={() => setCurrentPage(1)}
+                            className="px-3 py-2 rounded-lg text-sm font-bold transition-all"
+                            style={{
+                                background: 'rgba(255, 255, 255, 0.05)',
+                                color: '#94a3b8',
+                                border: '1px solid rgba(255, 255, 255, 0.1)'
+                            }}
+                        >
+                            1
+                        </button>
+                        {startPage > 2 && (
+                            <span className="text-gray-500 px-1">...</span>
+                        )}
+                    </>
+                )}
+
+                {pages.map(page => (
+                    <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`px-3 py-2 rounded-lg text-sm font-bold transition-all ${currentPage === page ? 'scale-110' : ''
+                            }`}
+                        style={currentPage === page ? {
+                            background: '#ebae3b',
+                            color: '#0d1216',
+                            border: '2px solid #ebae3b'
+                        } : {
+                            background: 'rgba(255, 255, 255, 0.05)',
+                            color: '#94a3b8',
+                            border: '1px solid rgba(255, 255, 255, 0.1)'
+                        }}
+                    >
+                        {page}
+                    </button>
+                ))}
+
+                {endPage < totalPages && (
+                    <>
+                        {endPage < totalPages - 1 && (
+                            <span className="text-gray-500 px-1">...</span>
+                        )}
+                        <button
+                            onClick={() => setCurrentPage(totalPages)}
+                            className="px-3 py-2 rounded-lg text-sm font-bold transition-all"
+                            style={{
+                                background: 'rgba(255, 255, 255, 0.05)',
+                                color: '#94a3b8',
+                                border: '1px solid rgba(255, 255, 255, 0.1)'
+                            }}
+                        >
+                            {totalPages}
+                        </button>
+                    </>
+                )}
+
+                <button
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-2 rounded-lg text-sm font-bold transition-all disabled:opacity-30"
+                    style={{
+                        background: 'rgba(235, 174, 59, 0.2)',
+                        color: '#ebae3b',
+                        border: '1px solid rgba(235, 174, 59, 0.3)'
+                    }}
+                >
+                    →
+                </button>
+            </div>
+        );
+    };
 
     const handleDeletePresence = async (id) => {
         if (!confirm('Yakin ingin menghapus presensi ini?')) return;
@@ -326,7 +456,6 @@ function AdminContent() {
                         </div>
                     )}
 
-
                     {/* Export Section */}
                     {activeTab === 'presences' && (
                         <div className="rounded-2xl px-5 py-5 shadow-2xl"
@@ -425,72 +554,80 @@ function AdminContent() {
                                             <p className="text-gray-400">Tidak ada data presensi</p>
                                         </div>
                                     ) : (
-                                        presences.map((presence) => (
-                                            <div
-                                                key={presence.id}
-                                                className="rounded-xl px-5 py-4 shadow-lg"
-                                                style={{
-                                                    background: 'rgba(255, 255, 255, 0.06)',
-                                                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                                                }}
-                                            >
-                                                <div className="flex justify-between items-start mb-3">
-                                                    <div>
-                                                        <p className="font-bold text-base" style={{ color: '#ebae3b' }}>
-                                                            {presence.username}
-                                                        </p>
-                                                        <p className="text-sm text-gray-400 mt-0.5">{presence.picketType}</p>
-                                                    </div>
-                                                    <span
-                                                        className="text-xs px-3 py-1.5 rounded-lg font-black border-2 uppercase tracking-wide"
-                                                        style={presence.status === 'Tepat Waktu'
-                                                            ? { background: 'rgba(34, 197, 94, 0.25)', color: '#4ade80', borderColor: '#22c55e' }
-                                                            : { background: 'rgba(239, 68, 68, 0.25)', color: '#f87171', borderColor: '#ef4444' }
-                                                        }
-                                                    >
-                                                        {presence.status}
-                                                    </span>
-                                                </div>
-
-                                                {presence.area && (
-                                                    <p className="text-sm mb-2 flex items-center gap-2" style={{ color: '#94a3b8' }}>
-                                                        <FaMapMarkerAlt style={{ color: '#60a5fa' }} size={14} />
-                                                        {presence.area}
-                                                    </p>
-                                                )}
-
-                                                <p className="text-sm mb-4" style={{ color: '#6b7280' }}>
-                                                    <FaClock className="inline mr-2" size={12} />
-                                                    {new Date(presence.timestamp).toLocaleString('id-ID', {
-                                                        timeZone: 'Asia/Jakarta',
-                                                        year: 'numeric',
-                                                        month: 'short',
-                                                        day: 'numeric',
-                                                        hour: '2-digit',
-                                                        minute: '2-digit',
-                                                    })}
+                                        <>
+                                            <div className="text-center py-2">
+                                                <p className="text-sm text-gray-400">
+                                                    Menampilkan {((currentPage - 1) * ITEMS_PER_PAGE) + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, presences.length)} dari {presences.length} presensi
                                                 </p>
-
-                                                <div className="flex gap-3">
-                                                    <button
-                                                        onClick={() => router.push(`/presence/${presence.id}`)}
-                                                        className="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all"
-                                                        style={{ background: 'rgba(59, 130, 246, 0.2)', color: '#60a5fa' }}
-                                                    >
-                                                        Detail
-                                                    </button>
-                                                    {user.role === 'dev' && (
-                                                        <button
-                                                            onClick={() => handleDeletePresence(presence.id)}
-                                                            className="px-4 py-2.5 rounded-lg text-sm font-bold transition-all"
-                                                            style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444' }}
-                                                        >
-                                                            <FaTrash />
-                                                        </button>
-                                                    )}
-                                                </div>
                                             </div>
-                                        ))
+                                            {paginatedPresences.map((presence) => (
+                                                <div
+                                                    key={presence.id}
+                                                    className="rounded-xl px-5 py-4 shadow-lg"
+                                                    style={{
+                                                        background: 'rgba(255, 255, 255, 0.06)',
+                                                        border: '1px solid rgba(255, 255, 255, 0.12)',
+                                                    }}
+                                                >
+                                                    <div className="flex justify-between items-start mb-3">
+                                                        <div>
+                                                            <p className="font-bold text-base" style={{ color: '#ebae3b' }}>
+                                                                {presence.username}
+                                                            </p>
+                                                            <p className="text-sm text-gray-400 mt-0.5">{presence.picketType}</p>
+                                                        </div>
+                                                        <span
+                                                            className="text-xs px-3 py-1.5 rounded-lg font-black border-2 uppercase tracking-wide"
+                                                            style={presence.status === 'Tepat Waktu'
+                                                                ? { background: 'rgba(34, 197, 94, 0.25)', color: '#4ade80', borderColor: '#22c55e' }
+                                                                : { background: 'rgba(239, 68, 68, 0.25)', color: '#f87171', borderColor: '#ef4444' }
+                                                            }
+                                                        >
+                                                            {presence.status}
+                                                        </span>
+                                                    </div>
+
+                                                    {presence.area && (
+                                                        <p className="text-sm mb-2 flex items-center gap-2" style={{ color: '#94a3b8' }}>
+                                                            <FaMapMarkerAlt style={{ color: '#60a5fa' }} size={14} />
+                                                            {presence.area}
+                                                        </p>
+                                                    )}
+
+                                                    <p className="text-sm mb-4" style={{ color: '#6b7280' }}>
+                                                        <FaClock className="inline mr-2" size={12} />
+                                                        {new Date(presence.timestamp).toLocaleString('id-ID', {
+                                                            timeZone: 'Asia/Jakarta',
+                                                            year: 'numeric',
+                                                            month: 'short',
+                                                            day: 'numeric',
+                                                            hour: '2-digit',
+                                                            minute: '2-digit',
+                                                        })}
+                                                    </p>
+
+                                                    <div className="flex gap-3">
+                                                        <button
+                                                            onClick={() => router.push(`/presence/${presence.id}`)}
+                                                            className="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all"
+                                                            style={{ background: 'rgba(59, 130, 246, 0.2)', color: '#60a5fa' }}
+                                                        >
+                                                            Detail
+                                                        </button>
+                                                        {user.role === 'dev' && (
+                                                            <button
+                                                                onClick={() => handleDeletePresence(presence.id)}
+                                                                className="px-4 py-2.5 rounded-lg text-sm font-bold transition-all"
+                                                                style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444' }}
+                                                            >
+                                                                <FaTrash />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                            {renderPagination()}
+                                        </>
                                     )}
                                 </div>
                             )}
@@ -525,55 +662,63 @@ function AdminContent() {
                                             <p className="text-gray-400">Tidak ada user yang cocok</p>
                                         </div>
                                     ) : (
-                                        filteredUsers.map((u) => (
-                                            <div
-                                                key={u.id}
-                                                className="rounded-xl px-5 py-4 shadow-lg"
-                                                style={{
-                                                    background: 'rgba(255, 255, 255, 0.06)',
-                                                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                                                }}
-                                            >
-                                                <div className="flex justify-between items-start mb-3">
-                                                    <div>
-                                                        <p className="font-bold text-base text-white">{u.name}</p>
-                                                        <p className="text-sm text-gray-400 mt-0.5">@{u.username}</p>
-                                                    </div>
-                                                    <span className="text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 font-bold border"
-                                                        style={u.role === 'dev' ? {
-                                                            background: 'rgba(139, 92, 246, 0.25)',
-                                                            color: '#c4b5fd',
-                                                            borderColor: '#a78bfa'
-                                                        } : u.role === 'staff' ? {
-                                                            background: 'rgba(59, 130, 246, 0.25)',
-                                                            color: '#93c5fd',
-                                                            borderColor: '#60a5fa'
-                                                        } : {
-                                                            background: 'rgba(156, 163, 175, 0.25)',
-                                                            color: '#d1d5db',
-                                                            borderColor: '#9ca3af'
-                                                        }}>
-                                                        <FaUserShield />
-                                                        {u.role.toUpperCase()}
-                                                    </span>
-                                                </div>
-
-                                                <p className="text-sm mb-4" style={{ color: '#94a3b8' }}>
-                                                    {u.class} {u.major}
+                                        <>
+                                            <div className="text-center py-2">
+                                                <p className="text-sm text-gray-400">
+                                                    Menampilkan {((currentPage - 1) * ITEMS_PER_PAGE) + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, filteredUsers.length)} dari {filteredUsers.length} user
                                                 </p>
-
-                                                {user.role === 'dev' && (
-                                                    <button
-                                                        onClick={() => router.push(`/admin/user/${u.id}`)}
-                                                        className="w-full py-2.5 rounded-lg text-sm font-bold transition-all"
-                                                        style={{ background: 'rgba(235, 174, 59, 0.2)', color: '#ebae3b' }}
-                                                    >
-                                                        <FaEdit className="inline mr-2" />
-                                                        Edit User
-                                                    </button>
-                                                )}
                                             </div>
-                                        ))
+                                            {paginatedUsers.map((u) => (
+                                                <div
+                                                    key={u.id}
+                                                    className="rounded-xl px-5 py-4 shadow-lg"
+                                                    style={{
+                                                        background: 'rgba(255, 255, 255, 0.06)',
+                                                        border: '1px solid rgba(255, 255, 255, 0.12)',
+                                                    }}
+                                                >
+                                                    <div className="flex justify-between items-start mb-3">
+                                                        <div>
+                                                            <p className="font-bold text-base text-white">{u.name}</p>
+                                                            <p className="text-sm text-gray-400 mt-0.5">@{u.username}</p>
+                                                        </div>
+                                                        <span className="text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 font-bold border"
+                                                            style={u.role === 'dev' ? {
+                                                                background: 'rgba(139, 92, 246, 0.25)',
+                                                                color: '#c4b5fd',
+                                                                borderColor: '#a78bfa'
+                                                            } : u.role === 'staff' ? {
+                                                                background: 'rgba(59, 130, 246, 0.25)',
+                                                                color: '#93c5fd',
+                                                                borderColor: '#60a5fa'
+                                                            } : {
+                                                                background: 'rgba(156, 163, 175, 0.25)',
+                                                                color: '#d1d5db',
+                                                                borderColor: '#9ca3af'
+                                                            }}>
+                                                            <FaUserShield />
+                                                            {u.role.toUpperCase()}
+                                                        </span>
+                                                    </div>
+
+                                                    <p className="text-sm mb-4" style={{ color: '#94a3b8' }}>
+                                                        {u.class} {u.major}
+                                                    </p>
+
+                                                    {user.role === 'dev' && (
+                                                        <button
+                                                            onClick={() => router.push(`/admin/user/${u.id}`)}
+                                                            className="w-full py-2.5 rounded-lg text-sm font-bold transition-all"
+                                                            style={{ background: 'rgba(235, 174, 59, 0.2)', color: '#ebae3b' }}
+                                                        >
+                                                            <FaEdit className="inline mr-2" />
+                                                            Edit User
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            ))}
+                                            {renderPagination()}
+                                        </>
                                     )}
                                 </div>
                             )}
@@ -650,8 +795,35 @@ function AdminContent() {
                     }
                 </main>
 
+                <Modal
+                    open={modalOpen}
+                    onClose={() => setModalOpen(false)}
+                    title={modalType === 'privacy' ? 'Kebijakan Privasi' : 'Syarat & Ketentuan'}
+                    className="max-w-3xl"
+                    style={{ zIndex: 10000 }}
+                >
+                    {modalType === 'privacy' ? <PrivacyPolicy /> : <TermsAndService />}
+                </Modal>
+
                 {/* Footer */}
-                <footer className="px-4 py-6 text-center">
+                <div className="mt-8 text-center">
+                    <div className="text-xs leading-relaxed flex-1" style={{ color: '#e5e7eb' }}>
+                        <span
+                            onClick={() => { setModalType('privacy'); setModalOpen(true); }}
+                            className="font-semibold hover:underline cursor-pointer"
+                            style={{ color: '#ebae3b' }}
+                        >
+                            Kebijakan Privasi
+                        </span>
+                        {' '}|{' '}
+                        <span
+                            onClick={() => { setModalType('terms'); setModalOpen(true); }}
+                            className="font-semibold hover:underline cursor-pointer"
+                            style={{ color: '#ebae3b' }}
+                        >
+                            Syarat & Ketentuan
+                        </span>
+                    </div>
                     <p className="text-xs sm:text-sm font-bold" style={{ color: '#999' }}>
                         Created by{' '}
                         <a
@@ -665,7 +837,7 @@ function AdminContent() {
                         </a>
                         {' '}for TASIS
                     </p>
-                </footer>
+                </div>
             </div >
         </>
     );

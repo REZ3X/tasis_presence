@@ -13,6 +13,9 @@ import {
 import { MdCameraswitch } from "react-icons/md";
 import { RiCameraOffFill } from "react-icons/ri";
 import { useRouter } from 'next/navigation';
+import Modal from '@/components/Modal';
+import PrivacyPolicy from '@/components/PrivacyPolicy';
+import TermsAndService from '@/components/TermsAndService';
 
 function TasisLoader() {
     return (
@@ -252,6 +255,8 @@ export default function HomePage() {
     const [showCameraSelector, setShowCameraSelector] = useState(false);
     const [includeLocation, setIncludeLocation] = useState(true);
     const [includeDeviceInfo, setIncludeDeviceInfo] = useState(true);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalType, setModalType] = useState(null);
 
     const [historyFilter, setHistoryFilter] = useState({
         picketType: 'all',
@@ -1227,8 +1232,35 @@ export default function HomePage() {
                         })()}
                     </div>
 
+                    <Modal
+                        open={modalOpen}
+                        onClose={() => setModalOpen(false)}
+                        title={modalType === 'privacy' ? 'Kebijakan Privasi' : 'Syarat & Ketentuan'}
+                        className="max-w-3xl"
+                        style={{ zIndex: 10000 }}
+                    >
+                        {modalType === 'privacy' ? <PrivacyPolicy /> : <TermsAndService />}
+                    </Modal>
+
                     {/* Footer */}
                     <div className="mt-8 text-center">
+                        <div className="text-xs leading-relaxed flex-1" style={{ color: '#e5e7eb' }}>
+                            <span
+                                onClick={() => { setModalType('privacy'); setModalOpen(true); }}
+                                className="font-semibold hover:underline cursor-pointer"
+                                style={{ color: '#ebae3b' }}
+                            >
+                                Kebijakan Privasi
+                            </span>
+                            {' '}|{' '}
+                            <span
+                                onClick={() => { setModalType('terms'); setModalOpen(true); }}
+                                className="font-semibold hover:underline cursor-pointer"
+                                style={{ color: '#ebae3b' }}
+                            >
+                                Syarat & Ketentuan
+                            </span>
+                        </div>
                         <p className="text-xs sm:text-sm font-bold" style={{ color: '#999' }}>
                             Created by{' '}
                             <a
