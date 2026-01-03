@@ -103,7 +103,9 @@ export default function PrivacyPolicy() {
             <p>Kebijakan ini dapat diperbarui sewaktu-waktu dan akan diumumkan melalui Website.</p>
 
             <h3 className="font-semibold">11. Kontak</h3>
-            <p>Untuk pertanyaan terkait privasi data, silakan hubungi staf/pengembang Website Presensi TASIS SMKN 2 Depok Sleman. Informasi kontak staf bisa dicari di grup Tim Tasis Pandhawa 25/26. Informasi kontak pengembang bisa melalui email abim@rejaka.id</p>
+            <p>Untuk pertanyaan terkait privasi data, silakan hubungi staf/pengembang Website Presensi TASIS SMKN 2 Depok Sleman.</p>
+            <p>Informasi kontak staf bisa dicari di grup Tim Tasis Pandhawa 25/26.</p>
+            <p>Informasi kontak pengembang bisa melalui email <a href="mailto:abim@rejaka.id">abim@rejaka.id</a></p>
         </div>
     );
 }
