@@ -735,11 +735,14 @@ export default function HomePage() {
                                         }}
                                     >
                                         <option value="" style={{ background: '#1a2332', color: '#ffffff' }}>Pilih Area</option>
-                                        <option value="Bangki" style={{ background: '#1a2332', color: '#ffffff' }}>Bangki</option>
-                                        <option value="Gerbang Kandang" style={{ background: '#1a2332', color: '#ffffff' }}>Gerbang Kandang</option>
+                                        <option value="Lobi Bangki" style={{ background: '#1a2332', color: '#ffffff' }}>Lobi Bangki</option>
+                                        <option value="Kandang" style={{ background: '#1a2332', color: '#ffffff' }}>Kandang</option>
                                         <option value="Pintu Selatan Bima" style={{ background: '#1a2332', color: '#ffffff' }}>Pintu Selatan Bima</option>
-                                        <option value="Gerbang Utara" style={{ background: '#1a2332', color: '#ffffff' }}>Gerbang Utara (Deket Pos Satpam)</option>
-                                        <option value="Gerbang Rutor" style={{ background: '#1a2332', color: '#ffffff' }}>Gerbang Rutor (Samping Parkiran Guru Utara)</option>
+                                        <option value="Gerbang Utara" style={{ background: '#1a2332', color: '#ffffff' }}>Gerbang Utara</option>
+                                        <option value="Tangga Rutor" style={{ background: '#1a2332', color: '#ffffff' }}>Tangga Rutor</option>
+                                        <option value="Parkiran Guru" style={{ background: '#1a2332', color: '#ffffff' }}>Parkiran Guru</option>
+                                        <option value="Dekat Masjid" style={{ background: '#1a2332', color: '#ffffff' }}>Dekat Masjid</option>
+                                        <option value="Pintu Selatan" style={{ background: '#1a2332', color: '#ffffff' }}>Pintu Selatan</option>
                                     </select>
                                 </div>
                             )}
