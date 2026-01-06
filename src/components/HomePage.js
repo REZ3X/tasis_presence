@@ -503,7 +503,7 @@ export default function HomePage() {
         const minutes = jakartaTime.getMinutes();
 
         if (picketType === 'Piket Pagi') {
-            return hours > 6 || (hours === 6 && minutes > 55);
+            return hours > 6 || (hours === 6 && minutes > 30);
         }
 
         if (picketType === 'Piket Sore') {
