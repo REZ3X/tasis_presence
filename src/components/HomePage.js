@@ -42,7 +42,7 @@ function TasisLoader() {
     );
 }
 
-function MobileWarning() {
+function MobileWarning({ userRole }) {
     const [isMobile, setIsMobile] = useState(true);
 
     useEffect(() => {
@@ -56,6 +56,8 @@ function MobileWarning() {
     }, []);
 
     if (isMobile) return null;
+
+    if (userRole === 'dev' || userRole === 'staff' || userRole === 'watcher') return null;
 
     return (
         <div className="fixed inset-0 z-[10001] flex items-center justify-center p-4"
@@ -141,17 +143,21 @@ function UserDropdown({ user, onNavigate, onLogout }) {
                                 style={{
                                     background: user.role === 'dev' ? 'rgba(139, 92, 246, 0.3)' :
                                         user.role === 'staff' ? 'rgba(59, 130, 246, 0.3)' :
-                                            'rgba(75, 85, 99, 0.3)',
+                                            user.role === 'watcher' ? 'rgba(234, 179, 8, 0.3)' :
+                                                'rgba(75, 85, 99, 0.3)',
                                     border: `1px solid ${user.role === 'dev' ? '#a78bfa' :
-                                        user.role === 'staff' ? '#60a5fa' : '#9ca3af'}`
+                                        user.role === 'staff' ? '#60a5fa' :
+                                            user.role === 'watcher' ? '#eab308' : '#9ca3af'}`
                                 }}>
                                 <FaUserShield style={{
                                     color: user.role === 'dev' ? '#a78bfa' :
-                                        user.role === 'staff' ? '#60a5fa' : '#9ca3af'
+                                        user.role === 'staff' ? '#60a5fa' :
+                                            user.role === 'watcher' ? '#eab308' : '#9ca3af'
                                 }} />
                                 <span className="font-black text-xs" style={{
                                     color: user.role === 'dev' ? '#a78bfa' :
-                                        user.role === 'staff' ? '#60a5fa' : '#9ca3af'
+                                        user.role === 'staff' ? '#60a5fa' :
+                                            user.role === 'watcher' ? '#eab308' : '#9ca3af'
                                 }}>
                                     {user.role.toUpperCase()}
                                 </span>
@@ -172,7 +178,7 @@ function UserDropdown({ user, onNavigate, onLogout }) {
                             Profile
                         </button>
 
-                        {(user.role === 'staff' || user.role === 'dev') && (
+                        {(user.role === 'staff' || user.role === 'dev' || user.role === 'watcher') && (
                             <button
                                 onClick={() => {
                                     setIsOpen(false);
@@ -270,6 +276,10 @@ export default function HomePage() {
 
     useEffect(() => {
         if (user) {
+            if (user.role === 'watcher') {
+                router.push('/admin');
+                return;
+            }
             checkDefaultPicketType();
             getLocation();
             fetchPresences();
@@ -625,7 +635,7 @@ export default function HomePage() {
 
     return (
         <>
-            <MobileWarning />
+            <MobileWarning userRole={user?.role} />
 
             <div className="min-h-screen pb-20"
                 style={{ background: 'linear-gradient(135deg, #0d1216 0%, #1a2332 100%)' }}>
@@ -637,31 +647,35 @@ export default function HomePage() {
                         borderColor: 'rgba(235, 174, 59, 0.2)',
                         zIndex: 9999,
                     }}>
-                    <div className="flex items-center justify-between mb-5">
-                        <div className="flex items-center gap-4">
-                            <Image src="/logo.svg" alt="TASIS" width={44} height={44} />
-                            <div>
-                                <h1 className="text-xl font-bold" style={{ color: '#ebae3b' }}>
-                                    TASIS
-                                </h1>
-                                <p className="text-sm text-gray-400">Presensi Piket</p>
+                    <div className="max-w-5xl mx-auto">
+                        <div className="flex items-center justify-between mb-5">
+                            <div className="flex items-center gap-4">
+                                <Image src="/logo.svg" alt="TASIS" width={44} height={44} />
+                                <div>
+                                    <h1 className="text-xl font-bold" style={{ color: '#ebae3b' }}>
+                                        TASIS
+                                    </h1>
+                                    <p className="text-sm text-gray-400">Presensi Piket</p>
+                                </div>
                             </div>
+                            <UserDropdown
+                                user={user}
+                                onNavigate={router.push}
+                                onLogout={logout}
+                            />
                         </div>
-                        <UserDropdown
-                            user={user}
-                            onNavigate={router.push}
-                            onLogout={logout}
-                        />
+                        <>
+                            <CurrentTime />
+                        </>
                     </div>
-                    <>
-                        <CurrentTime />
-                    </>
                 </div>
-{/* 
+                {/* 
                 <script async="async" data-cfasync="false" src="https://passivealexis.com/487e52acb339c3a0ec406d9715d6faa1/invoke.js"></script> */}
                 <div id="container-487e52acb339c3a0ec406d9715d6faa1" style={{ position: 'relative', zIndex: 0 }} />
 
-                <div className="px-4 py-6 space-y-8">
+                <div className="px-4 py-6 space-y-8 max-w-5xl mx-auto lg:grid lg:grid-cols-2 lg:gap-8 lg:space-y-0">
+                    {/* Presence Form */}
+                    <div className="space-y-8 lg:space-y-6">
                     {/* Success Message */}
                     {success && (
                         <div className="p-4 rounded-lg flex items-center gap-3"
@@ -681,7 +695,6 @@ export default function HomePage() {
                         </div>
                     )}
 
-                    {/* Presence Form */}
                     <div className="rounded-2xl px-5 py-6 shadow-2xl"
                         style={{ background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(10px)' }}>
                         <h2 className="text-xl font-bold mb-6 flex items-center gap-3" style={{ color: '#ebae3b' }}>
@@ -1014,7 +1027,10 @@ export default function HomePage() {
                             </button>
                         </form>
                     </div>
+                    </div>
 
+                    {/* Right Column - History */}
+                    <div className="space-y-8 lg:space-y-6">
                     {/* Presence History */}
                     <div className="rounded-2xl px-5 py-6 shadow-2xl"
                         style={{ background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(10px)' }}>
@@ -1234,6 +1250,7 @@ export default function HomePage() {
                             );
                         })()}
                     </div>
+                    </div>
 
                     <Modal
                         open={modalOpen}
@@ -1246,7 +1263,7 @@ export default function HomePage() {
                     </Modal>
 
                     {/* Footer */}
-                    <div className="mt-8 text-center">
+                    <div className="mt-8 text-center lg:col-span-2">
                         <div className="text-xs leading-relaxed flex-1" style={{ color: '#e5e7eb' }}>
                             <span
                                 onClick={() => { setModalType('privacy'); setModalOpen(true); }}

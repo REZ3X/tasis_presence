@@ -3,17 +3,19 @@
 import { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import {
     FaArrowLeft, FaUsers, FaClipboardList, FaFilter,
     FaEdit, FaTrash, FaUserShield, FaMapMarkerAlt, FaClock,
-    FaDownload, FaSpinner, FaFileExcel, FaDesktop, FaMobile, FaExclamationCircle
+    FaDownload, FaSpinner, FaFileExcel, FaDesktop, FaMobile, FaExclamationCircle,
+    FaUserCircle, FaChevronDown, FaUser, FaSignOutAlt, FaHome
 } from 'react-icons/fa';
 import TasisLoader from '@/components/TasisLoader';
 import Modal from '@/components/Modal';
 import PrivacyPolicy from '@/components/PrivacyPolicy';
 import TermsAndService from '@/components/TermsAndService';
 
-function MobileWarning() {
+function MobileWarning({ userRole }) {
     const [isMobile, setIsMobile] = useState(true);
 
     useEffect(() => {
@@ -27,6 +29,8 @@ function MobileWarning() {
     }, []);
 
     if (isMobile) return null;
+
+    if (userRole === 'dev' || userRole === 'staff' || userRole === 'watcher') return null;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -59,8 +63,129 @@ function MobileWarning() {
     );
 }
 
+function UserDropdown({ user, onNavigate, onLogout, isWatcher }) {
+    const [isOpen, setIsOpen] = useState(false);
+
+    if (!user) return null;
+
+    return (
+        <div className="relative flex-shrink-0">
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl transition-all"
+                style={{
+                    background: 'rgba(235, 174, 59, 0.1)',
+                    border: '1px solid rgba(235, 174, 59, 0.3)',
+                    maxWidth: '140px',
+                }}
+            >
+                <FaUserCircle style={{ color: '#ebae3b', flexShrink: 0 }} size={20} />
+                <span
+                    className="text-sm font-semibold truncate"
+                    style={{ color: '#ebae3b', maxWidth: '70px' }}
+                >
+                    {user.name.split(' ')[0]}
+                </span>
+                <FaChevronDown
+                    style={{ color: '#ebae3b', flexShrink: 0 }}
+                    size={12}
+                    className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                />
+            </button>
+
+            {isOpen && (
+                <>
+                    <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setIsOpen(false)}
+                    />
+                    <div
+                        className="absolute right-0 mt-2 w-64 rounded-lg shadow-2xl z-20 overflow-hidden"
+                        style={{
+                            background: '#1a2332',
+                            backdropFilter: 'blur(10px)',
+                            border: '2px solid #ebae3b',
+                        }}
+                    >
+                        <div className="p-4 border-b" style={{ borderColor: 'rgba(235, 174, 59, 0.3)', background: 'rgba(235, 174, 59, 0.05)' }}>
+                            <p className="text-xs font-semibold" style={{ color: '#ebae3b' }}>USERNAME</p>
+                            <p className="font-bold text-lg text-white">{user.username}</p>
+                            <p className="text-xs font-semibold mt-3" style={{ color: '#ebae3b' }}>KELAS</p>
+                            <p className="font-bold text-white">{user.class} {user.major}</p>
+                            <div className="mt-3 px-3 py-1.5 rounded-lg inline-flex items-center gap-2"
+                                style={{
+                                    background: user.role === 'dev' ? 'rgba(139, 92, 246, 0.3)' :
+                                        user.role === 'staff' ? 'rgba(59, 130, 246, 0.3)' :
+                                            user.role === 'watcher' ? 'rgba(234, 179, 8, 0.3)' :
+                                                'rgba(75, 85, 99, 0.3)',
+                                    border: `1px solid ${user.role === 'dev' ? '#a78bfa' :
+                                        user.role === 'staff' ? '#60a5fa' :
+                                            user.role === 'watcher' ? '#eab308' : '#9ca3af'}`
+                                }}>
+                                <FaUserShield style={{
+                                    color: user.role === 'dev' ? '#a78bfa' :
+                                        user.role === 'staff' ? '#60a5fa' :
+                                            user.role === 'watcher' ? '#eab308' : '#9ca3af'
+                                }} />
+                                <span className="font-black text-xs" style={{
+                                    color: user.role === 'dev' ? '#a78bfa' :
+                                        user.role === 'staff' ? '#60a5fa' :
+                                            user.role === 'watcher' ? '#eab308' : '#9ca3af'
+                                }}>
+                                    {user.role.toUpperCase()}
+                                </span>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={() => {
+                                setIsOpen(false);
+                                onNavigate('/profile');
+                            }}
+                            className="w-full px-4 py-3 text-left flex items-center gap-3 transition-all font-semibold"
+                            style={{ color: '#e5e7eb', background: 'transparent' }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(235, 174, 59, 0.1)'}
+                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        >
+                            <FaUser />
+                            Profile
+                        </button>
+
+                        {!isWatcher && (
+                            <button
+                                onClick={() => {
+                                    setIsOpen(false);
+                                    onNavigate('/');
+                                }}
+                                className="w-full px-4 py-3 text-left flex items-center gap-3 transition-all font-semibold"
+                                style={{ color: '#ebae3b', background: 'transparent' }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(235, 174, 59, 0.1)'}
+                                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                            >
+                                <FaHome />
+                                Presensi
+                            </button>
+                        )}
+
+                        <button
+                            onClick={onLogout}
+                            className="w-full px-4 py-3 text-left flex items-center gap-3 transition-all border-t font-semibold"
+                            style={{ color: '#ef4444', borderColor: 'rgba(235, 174, 59, 0.3)', background: 'transparent' }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
+                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        >
+                            <FaSignOutAlt />
+                            Logout
+                        </button>
+                    </div>
+                </>
+            )}
+        </div>
+    );
+}
+
 function AdminContent() {
-    const { user, getToken } = useAuth();
+    const { user, getToken, logout } = useAuth();
     const router = useRouter();
     const [activeTab, setActiveTab] = useState('presences');
     const [presences, setPresences] = useState([]);
@@ -321,36 +446,49 @@ function AdminContent() {
 
     return (
         <>
-            <MobileWarning />
+            <MobileWarning userRole={user.role} />
             <div className="min-h-screen flex flex-col"
                 style={{ background: 'linear-gradient(135deg, #0d1216 0%, #1a2332 100%)' }}>
                 {/* Header */}
-                <div className="sticky top-0 z-10 px-4 py-5 border-b"
+                <div className="sticky top-0 z-50 px-4 py-5 border-b"
                     style={{
                         background: 'rgba(13, 18, 22, 0.95)',
                         backdropFilter: 'blur(10px)',
                         borderColor: 'rgba(235, 174, 59, 0.2)',
+                        zIndex: 9999,
                     }}>
-                    <div className="flex items-center gap-4 mb-5">
-                        <button
-                            onClick={() => router.push('/')}
-                            className="p-2.5 rounded-xl transition-all"
-                            style={{ background: 'rgba(235, 174, 59, 0.1)', color: '#ebae3b' }}
-                        >
-                            <FaArrowLeft size={18} />
-                        </button>
-                        <div className="flex-1">
-                            <h1 className="text-xl font-bold" style={{ color: '#ebae3b' }}>
-                                Admin Panel
-                            </h1>
-                            <p className="text-sm text-gray-400">
-                                {user.role === 'dev' ? 'Full Access' : 'View Only'}
-                            </p>
+                    <div className="max-w-6xl mx-auto">
+                    <div className="flex items-center justify-between mb-5">
+                        <div className="flex items-center gap-4">
+                            {user.role !== 'watcher' && (
+                                <button
+                                    onClick={() => router.push('/')}
+                                    className="p-2.5 rounded-xl transition-all"
+                                    style={{ background: 'rgba(235, 174, 59, 0.1)', color: '#ebae3b' }}
+                                >
+                                    <FaArrowLeft size={18} />
+                                </button>
+                            )}
+                            <Image src="/logo.svg" alt="TASIS" width={44} height={44} />
+                            <div>
+                                <h1 className="text-xl font-bold" style={{ color: '#ebae3b' }}>
+                                    Admin Panel
+                                </h1>
+                                <p className="text-sm text-gray-400">
+                                    {user.role === 'dev' ? 'Full Access' : 'View Only'}
+                                </p>
+                            </div>
                         </div>
+                        <UserDropdown
+                            user={user}
+                            onNavigate={router.push}
+                            onLogout={logout}
+                            isWatcher={user.role === 'watcher'}
+                        />
                     </div>
 
                     {/* Tabs */}
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 lg:max-w-md">
                         <button
                             onClick={() => setActiveTab('presences')}
                             className={`flex-1 py-3 px-4 rounded-xl transition-all font-bold ${activeTab === 'presences'
@@ -378,9 +516,10 @@ function AdminContent() {
                             Users
                         </button>
                     </div>
+                    </div>
                 </div>
 
-                <main className="px-4 py-6 space-y-5 flex-1">
+                <main className="px-4 py-6 space-y-5 flex-1 max-w-6xl mx-auto w-full">
                     {/* Filters for Presences */}
                     {activeTab === 'presences' && (
                         <div className="rounded-2xl px-5 py-5 shadow-2xl"
@@ -389,7 +528,7 @@ function AdminContent() {
                                 <FaFilter />
                                 Filter
                             </h3>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                                 <select
                                     value={filter.picketType}
                                     onChange={(e) => setFilter({ ...filter, picketType: e.target.value })}
@@ -464,7 +603,7 @@ function AdminContent() {
                                 <FaFileExcel />
                                 Export Rekap Bulanan
                             </h3>
-                            <div className="flex gap-3 mb-4">
+                            <div className="flex gap-3 mb-4 lg:max-w-md">
                                 <select
                                     value={exportMonth}
                                     onChange={(e) => setExportMonth(parseInt(e.target.value))}
@@ -560,6 +699,7 @@ function AdminContent() {
                                                     Menampilkan {((currentPage - 1) * ITEMS_PER_PAGE) + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, presences.length)} dari {presences.length} presensi
                                                 </p>
                                             </div>
+                                            <div className="lg:grid lg:grid-cols-2 lg:gap-4 space-y-4 lg:space-y-0">
                                             {paginatedPresences.map((presence) => (
                                                 <div
                                                     key={presence.id}
@@ -626,6 +766,7 @@ function AdminContent() {
                                                     </div>
                                                 </div>
                                             ))}
+                                            </div>
                                             {renderPagination()}
                                         </>
                                     )}
@@ -668,6 +809,7 @@ function AdminContent() {
                                                     Menampilkan {((currentPage - 1) * ITEMS_PER_PAGE) + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, filteredUsers.length)} dari {filteredUsers.length} user
                                                 </p>
                                             </div>
+                                            <div className="lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-4 space-y-4 lg:space-y-0">
                                             {paginatedUsers.map((u) => (
                                                 <div
                                                     key={u.id}
@@ -691,6 +833,10 @@ function AdminContent() {
                                                                 background: 'rgba(59, 130, 246, 0.25)',
                                                                 color: '#93c5fd',
                                                                 borderColor: '#60a5fa'
+                                                            } : u.role === 'watcher' ? {
+                                                                background: 'rgba(234, 179, 8, 0.25)',
+                                                                color: '#fde047',
+                                                                borderColor: '#eab308'
                                                             } : {
                                                                 background: 'rgba(156, 163, 175, 0.25)',
                                                                 color: '#d1d5db',
@@ -705,7 +851,7 @@ function AdminContent() {
                                                         {u.class} {u.major}
                                                     </p>
 
-                                                    {user.role === 'dev' && (
+                                                    {user.role === 'dev' && u.role !== 'dev' && (
                                                         <button
                                                             onClick={() => router.push(`/admin/user/${u.id}`)}
                                                             className="w-full py-2.5 rounded-lg text-sm font-bold transition-all"
@@ -717,6 +863,7 @@ function AdminContent() {
                                                     )}
                                                 </div>
                                             ))}
+                                            </div>
                                             {renderPagination()}
                                         </>
                                     )}
@@ -733,7 +880,7 @@ function AdminContent() {
                                 <h3 className="text-sm font-bold mb-5" style={{ color: '#ebae3b' }}>
                                     Statistik
                                 </h3>
-                                <div className="grid grid-cols-2 gap-5 text-center">
+                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 text-center">
                                     {activeTab === 'presences' ? (
                                         <>
                                             <div>
@@ -782,6 +929,12 @@ function AdminContent() {
                                                 <p className="text-xs text-gray-400">Staff</p>
                                             </div>
                                             <div>
+                                                <p className="text-2xl font-bold" style={{ color: '#eab308' }}>
+                                                    {users.filter(u => u.role === 'watcher').length}
+                                                </p>
+                                                <p className="text-xs text-gray-400">Watchers</p>
+                                            </div>
+                                            <div>
                                                 <p className="text-2xl font-bold" style={{ color: '#ebae3b' }}>
                                                     {new Set(users.map(u => `${u.class || ''}-${u.major || ''}`)).size}
                                                 </p>
@@ -806,7 +959,7 @@ function AdminContent() {
                 </Modal>
 
                 {/* Footer */}
-                <div className="mt-8 text-center">
+                <div className="mt-8 text-center max-w-6xl mx-auto px-4 pb-6">
                     <div className="text-xs leading-relaxed flex-1" style={{ color: '#e5e7eb' }}>
                         <span
                             onClick={() => { setModalType('privacy'); setModalOpen(true); }}

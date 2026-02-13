@@ -124,7 +124,7 @@ function EditUserContent() {
                     backdropFilter: 'blur(10px)',
                     borderColor: 'rgba(235, 174, 59, 0.2)',
                 }}>
-                <div className="flex items-center gap-3">
+                <div className="max-w-2xl mx-auto flex items-center gap-3">
                     <button
                         onClick={() => router.push('/admin')}
                         className="p-2 rounded-lg transition-all"
@@ -141,7 +141,7 @@ function EditUserContent() {
                 </div>
             </div>
 
-            <div className="p-4">
+            <div className="p-4 max-w-2xl mx-auto">
                 {success && (
                     <div className="mb-4 p-4 rounded-lg"
                         style={{ background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)', color: '#22c55e' }}>
@@ -249,6 +249,7 @@ function EditUserContent() {
                         >
                             <option value="basic">Basic (User biasa)</option>
                             <option value="staff">Staff (Lihat admin panel)</option>
+                            <option value="watcher">Watcher (Admin panel saja)</option>
                             <option value="dev">Dev (Full access)</option>
                         </select>
                     </div>

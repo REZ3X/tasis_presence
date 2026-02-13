@@ -67,7 +67,11 @@ export function AuthProvider({ children }) {
         if (data.success) {
             localStorage.setItem('tasis_token', data.token);
             setUser(data.user);
-            router.push('/');
+            if (data.user.role === 'watcher') {
+                router.push('/admin');
+            } else {
+                router.push('/');
+            }
             return { success: true };
         }
 

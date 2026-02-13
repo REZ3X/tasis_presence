@@ -9,7 +9,7 @@ import Modal from '@/components/Modal';
 import PrivacyPolicy from '@/components/PrivacyPolicy';
 import TermsAndService from '@/components/TermsAndService';
 
-function MobileWarning() {
+function MobileWarning({ userRole }) {
     const [isMobile, setIsMobile] = useState(true);
 
     useEffect(() => {
@@ -23,6 +23,8 @@ function MobileWarning() {
     }, []);
 
     if (isMobile) return null;
+
+    if (userRole === 'dev' || userRole === 'staff' || userRole === 'watcher') return null;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -169,7 +171,7 @@ function PresenceDetailContent() {
                 console.log('Presence data:', data.presence);
                 console.log('Image URL:', data.presence.imageUrl);
 
-                const isStaffOrDev = user && (user.role === 'staff' || user.role === 'dev');
+                const isStaffOrDev = user && (user.role === 'staff' || user.role === 'dev' || user.role === 'watcher');
                 const isOwner = user && data.presence && data.presence.username === user.username;
 
                 if (!isStaffOrDev && !isOwner) {
@@ -235,7 +237,7 @@ function PresenceDetailContent() {
 
     return (
         <>
-            <MobileWarning />
+            <MobileWarning userRole={user?.role} />
             <div className="min-h-screen pb-20"
                 style={{ background: 'linear-gradient(135deg, #0d1216 0%, #1a2332 100%)' }}>
                 {/* Header */}
@@ -245,7 +247,7 @@ function PresenceDetailContent() {
                         backdropFilter: 'blur(10px)',
                         borderColor: 'rgba(235, 174, 59, 0.2)',
                     }}>
-                    <div className="flex items-center gap-3">
+                    <div className="max-w-4xl mx-auto flex items-center gap-3">
                         <button
                             onClick={() => router.back()}
                             className="p-2 rounded-lg transition-all"
@@ -262,7 +264,9 @@ function PresenceDetailContent() {
                     </div>
                 </div>
 
-                <div className="p-4 space-y-4">
+                <div className="p-4 space-y-4 max-w-4xl mx-auto lg:grid lg:grid-cols-5 lg:gap-6 lg:space-y-0 lg:py-6">
+                    {/* Left Column - Image */}
+                    <div className="lg:col-span-2 space-y-4">
                     {/* Image */}
                     {presence.imageUrl && (() => {
                         let fileId = null;
@@ -326,7 +330,10 @@ function PresenceDetailContent() {
                             <p style={{ color: '#9ca3af' }}>Tidak ada foto</p>
                         </div>
                     )}
+                    </div>
 
+                    {/* Right Column - Info */}
+                    <div className="lg:col-span-3 space-y-4">
                     {/* User Info */}
                     {presence.user && (
                         <div className="rounded-2xl p-6 shadow-2xl"
@@ -432,6 +439,7 @@ function PresenceDetailContent() {
 
                     {/* <script async="async" data-cfasync="false" src="https://passivealexis.com/487e52acb339c3a0ec406d9715d6faa1/invoke.js"></script> */}
                     <div id="container-487e52acb339c3a0ec406d9715d6faa1" />
+                    </div>
 
                     <Modal
                         open={modalOpen}
@@ -444,7 +452,7 @@ function PresenceDetailContent() {
                     </Modal>
 
                     {/* Footer */}
-                    <div className="mt-8 text-center">
+                    <div className="mt-8 text-center lg:col-span-5">
                         <div className="text-xs leading-relaxed flex-1" style={{ color: '#e5e7eb' }}>
                             <span
                                 onClick={() => { setModalType('privacy'); setModalOpen(true); }}

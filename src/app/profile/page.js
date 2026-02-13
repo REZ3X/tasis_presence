@@ -10,7 +10,7 @@ import Modal from '@/components/Modal';
 import PrivacyPolicy from '@/components/PrivacyPolicy';
 import TermsAndService from '@/components/TermsAndService';
 
-function MobileWarning() {
+function MobileWarning({ userRole }) {
     const [isMobile, setIsMobile] = useState(true);
 
     useEffect(() => {
@@ -24,6 +24,8 @@ function MobileWarning() {
     }, []);
 
     if (isMobile) return null;
+
+    if (userRole === 'dev' || userRole === 'staff' || userRole === 'watcher') return null;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -73,7 +75,7 @@ function ProfileContent() {
 
     return (
         <>
-            <MobileWarning />
+            <MobileWarning userRole={user.role} />
             <div className="min-h-screen pb-20"
                 style={{ background: 'linear-gradient(135deg, #0d1216 0%, #1a2332 100%)' }}>
                 {/* Header */}
@@ -83,7 +85,7 @@ function ProfileContent() {
                         backdropFilter: 'blur(10px)',
                         borderColor: 'rgba(235, 174, 59, 0.2)',
                     }}>
-                    <div className="flex items-center gap-3">
+                    <div className="max-w-4xl mx-auto flex items-center gap-3">
                         <button
                             onClick={() => router.push('/')}
                             className="p-2 rounded-lg transition-all"
@@ -100,7 +102,7 @@ function ProfileContent() {
                     </div>
                 </div>
 
-                <div className="p-4 space-y-6">
+                <div className="p-4 space-y-6 max-w-4xl mx-auto">
                     {/* Logo */}
                     <div className="text-center pt-8">
                         <div className="inline-block p-4 rounded-2xl mb-4"
@@ -115,6 +117,8 @@ function ProfileContent() {
                         </div>
                     </div>
 
+                    {/* User Info + Permissions Grid */}
+                    <div className="lg:grid lg:grid-cols-2 lg:gap-6 space-y-6 lg:space-y-0">
                     {/* User Info */}
                     <div className="rounded-2xl p-6 shadow-2xl"
                         style={{ background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(10px)' }}>
@@ -162,20 +166,24 @@ function ProfileContent() {
                                     style={{
                                         background: user.role === 'dev' ? 'rgba(139, 92, 246, 0.1)' :
                                             user.role === 'staff' ? 'rgba(59, 130, 246, 0.1)' :
-                                                'rgba(75, 85, 99, 0.1)',
+                                                user.role === 'watcher' ? 'rgba(234, 179, 8, 0.1)' :
+                                                    'rgba(75, 85, 99, 0.1)',
                                         border: `1px solid ${user.role === 'dev' ? 'rgba(139, 92, 246, 0.3)' :
                                             user.role === 'staff' ? 'rgba(59, 130, 246, 0.3)' :
-                                                'rgba(75, 85, 99, 0.3)'
+                                                user.role === 'watcher' ? 'rgba(234, 179, 8, 0.3)' :
+                                                    'rgba(75, 85, 99, 0.3)'
                                             }`
                                     }}>
                                     <FaUserShield style={{
                                         color: user.role === 'dev' ? '#a78bfa' :
-                                            user.role === 'staff' ? '#60a5fa' : '#9ca3af'
+                                            user.role === 'staff' ? '#60a5fa' :
+                                                user.role === 'watcher' ? '#eab308' : '#9ca3af'
                                     }} />
                                     <p className="font-semibold uppercase"
                                         style={{
                                             color: user.role === 'dev' ? '#a78bfa' :
-                                                user.role === 'staff' ? '#60a5fa' : '#9ca3af'
+                                                user.role === 'staff' ? '#60a5fa' :
+                                                    user.role === 'watcher' ? '#eab308' : '#9ca3af'
                                         }}>
                                         {user.role}
                                     </p>
@@ -185,7 +193,7 @@ function ProfileContent() {
                     </div>
 
                     {/* Permissions Info */}
-                    <div className="rounded-2xl p-6 shadow-2xl"
+                    <div className="rounded-2xl p-6 shadow-2xl h-fit"
                         style={{ background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(10px)' }}>
                         <h3 className="text-sm font-semibold mb-4" style={{ color: '#ebae3b' }}>
                             Hak Akses
@@ -206,6 +214,14 @@ function ProfileContent() {
                                     <p>✓ Lihat semua presensi</p>
                                 </>
                             )}
+                            {user.role === 'watcher' && (
+                                <>
+                                    <p>✓ Akses admin panel (lihat saja)</p>
+                                    <p>✓ Lihat data semua user</p>
+                                    <p>✓ Lihat semua presensi</p>
+                                    <p>✗ Tidak dapat input presensi</p>
+                                </>
+                            )}
                             {user.role === 'dev' && (
                                 <>
                                     <p>✓ Input presensi piket</p>
@@ -218,11 +234,12 @@ function ProfileContent() {
                             )}
                         </div>
                     </div>
+                    </div>
 
                     {/* Logout Button */}
                     <button
                         onClick={logout}
-                        className="w-full py-4 rounded-lg font-bold text-lg transition-all"
+                        className="w-full lg:max-w-xs lg:mx-auto lg:block py-4 rounded-lg font-bold text-lg transition-all"
                         style={{ background: '#ef4444', color: '#ffffff' }}
                     >
                         Logout

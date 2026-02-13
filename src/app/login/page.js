@@ -12,49 +12,7 @@ import TermsAndService from '@/components/TermsAndService';
 import Modal from '@/components/Modal';
 
 function MobileWarning() {
-    const [isMobile, setIsMobile] = useState(true);
-
-    useEffect(() => {
-        const checkMobile = () => {
-            setIsMobile(window.innerWidth <= 1024);
-        };
-
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
-
-    if (isMobile) return null;
-
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            style={{ background: 'rgba(13, 18, 22, 0.98)', backdropFilter: 'blur(10px)' }}>
-            <div className="text-center max-w-md rounded-2xl p-8"
-                style={{ background: 'rgba(26, 35, 50, 0.95)', border: '2px solid #ebae3b' }}>
-                <div className="mb-6 flex justify-center">
-                    <div className="relative">
-                        <FaDesktop style={{ color: '#ef4444', fontSize: '4rem' }} />
-                        <div className="absolute -bottom-2 -right-2 bg-red-600 rounded-full p-2">
-                            <FaExclamationCircle className="text-white text-xl" />
-                        </div>
-                    </div>
-                </div>
-                <h2 className="text-2xl font-black mb-4" style={{ color: '#ebae3b', textTransform: 'uppercase' }}>
-                    Akses Melalui Mobile
-                </h2>
-                <div className="mb-6 p-4 rounded-lg" style={{ background: 'rgba(235, 174, 59, 0.1)', border: '1px solid rgba(235, 174, 59, 0.3)' }}>
-                    <FaMobile style={{ color: '#ebae3b', fontSize: '2rem', margin: '0 auto 8px' }} />
-                    <p className="text-sm font-medium" style={{ color: '#e5e7eb' }}>
-                        Aplikasi ini dioptimalkan untuk perangkat mobile.
-                        Silakan buka melalui smartphone atau tablet Anda.
-                    </p>
-                </div>
-                <p className="text-xs" style={{ color: '#9ca3af' }}>
-                    TASIS - Tata Tertib Siswa
-                </p>
-            </div>
-        </div>
-    );
+    return null;
 }
 
 function LoginForm() {
