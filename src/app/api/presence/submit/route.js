@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 import clientPromise from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
+import { isWithinSchoolArea } from '@/lib/geofence';
 
 export async function POST(request) {
     try {
@@ -31,8 +32,8 @@ export async function POST(request) {
         const client = await clientPromise;
         const db = client.db('tasis_presence');
 
-        const user = await db.collection('users').findOne({ 
-            _id: new ObjectId(decoded.id) 
+        const user = await db.collection('users').findOne({
+            _id: new ObjectId(decoded.id)
         });
 
         console.log('User fetched from DB:', user ? {
@@ -40,6 +41,30 @@ export async function POST(request) {
             class: user.class || user.kelas,
             major: user.major || user.jurusan
         } : 'User not found');
+
+        if (user && user.role !== 'dev') {
+            if (!presenceData.location || !presenceData.location.latitude || !presenceData.location.longitude) {
+                return NextResponse.json(
+                    { success: false, message: 'Lokasi wajib disertakan untuk presensi' },
+                    { status: 400 }
+                );
+            }
+
+            const geoCheck = isWithinSchoolArea(
+                presenceData.location.latitude,
+                presenceData.location.longitude
+            );
+
+            if (!geoCheck.allowed) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        message: `Anda berada di luar area sekolah (${geoCheck.distance}m dari pusat, maks ${geoCheck.maxDistance}m). Presensi hanya bisa dilakukan di area sekolah.`,
+                    },
+                    { status: 403 }
+                );
+            }
+        }
 
         const GOOGLE_SCRIPT_URL = process.env.GOOGLE_SCRIPT_URL;
         let imageUrl = '';
@@ -87,7 +112,7 @@ export async function POST(request) {
                 if (contentType && contentType.includes('application/json')) {
                     const uploadResult = await uploadResponse.json();
                     console.log('Upload result:', uploadResult);
-                    
+
                     if (uploadResult.debug) {
                         console.log('=== GOOGLE SCRIPT DEBUG INFO ===');
                         console.log('Debug logs:', uploadResult.debug.logs);

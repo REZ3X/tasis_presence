@@ -8,6 +8,10 @@ import TasisLoader from '@/components/TasisLoader';
 import Modal from '@/components/Modal';
 import PrivacyPolicy from '@/components/PrivacyPolicy';
 import TermsAndService from '@/components/TermsAndService';
+import dynamic from 'next/dynamic';
+import { SCHOOL_AREA, isWithinSchoolArea } from '@/lib/geofence';
+
+const LocationMap = dynamic(() => import('@/components/LocationMap'), { ssr: false });
 
 function MobileWarning({ userRole }) {
     const [isMobile, setIsMobile] = useState(true);
@@ -267,178 +271,204 @@ function PresenceDetailContent() {
                 <div className="p-4 space-y-4 max-w-4xl mx-auto lg:grid lg:grid-cols-5 lg:gap-6 lg:space-y-0 lg:py-6">
                     {/* Left Column - Image */}
                     <div className="lg:col-span-2 space-y-4">
-                    {/* Image */}
-                    {presence.imageUrl && (() => {
-                        let fileId = null;
-                        const urlPatterns = [
-                            /[?&]id=([^&]+)/,
-                            /\/d\/([^/]+)/,
-                            /\/file\/d\/([^/]+)/
-                        ];
+                        {/* Image */}
+                        {presence.imageUrl && (() => {
+                            let fileId = null;
+                            const urlPatterns = [
+                                /[?&]id=([^&]+)/,
+                                /\/d\/([^/]+)/,
+                                /\/file\/d\/([^/]+)/
+                            ];
 
-                        for (const pattern of urlPatterns) {
-                            const match = presence.imageUrl.match(pattern);
-                            if (match) {
-                                fileId = match[1];
-                                break;
+                            for (const pattern of urlPatterns) {
+                                const match = presence.imageUrl.match(pattern);
+                                if (match) {
+                                    fileId = match[1];
+                                    break;
+                                }
                             }
-                        }
 
-                        const imageUrl = fileId ? `/api/image/${fileId}` : presence.imageUrl;
+                            const imageUrl = fileId ? `/api/image/${fileId}` : presence.imageUrl;
 
-                        return (
-                            <div className="rounded-2xl overflow-hidden shadow-2xl relative"
-                                style={{ background: 'rgba(255, 255, 255, 0.05)', minHeight: imageLoading ? '200px' : 'auto' }}>
-                                {/* Image Loading Spinner */}
-                                {imageLoading && (
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3"
-                                        style={{ background: 'rgba(13, 18, 22, 0.8)' }}>
-                                        <FaSpinner className="animate-spin" style={{ color: '#ebae3b', fontSize: '2rem' }} />
-                                        <p className="text-sm" style={{ color: '#ebae3b' }}>Memuat foto...</p>
-                                    </div>
-                                )}
-                                <img
-                                    src={imageUrl}
-                                    alt="Foto Presensi"
-                                    className="w-full"
-                                    onLoad={() => setImageLoading(false)}
-                                    onError={(e) => {
-                                        setImageLoading(false);
-                                        console.error('Image failed to load:', imageUrl);
-                                        console.error('Original URL:', presence.imageUrl);
-                                        e.target.style.display = 'none';
-                                        const errorDiv = document.createElement('div');
-                                        errorDiv.className = 'p-8 text-center';
-                                        errorDiv.innerHTML = `
+                            return (
+                                <div className="rounded-2xl overflow-hidden shadow-2xl relative"
+                                    style={{ background: 'rgba(255, 255, 255, 0.05)', minHeight: imageLoading ? '200px' : 'auto' }}>
+                                    {/* Image Loading Spinner */}
+                                    {imageLoading && (
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3"
+                                            style={{ background: 'rgba(13, 18, 22, 0.8)' }}>
+                                            <FaSpinner className="animate-spin" style={{ color: '#ebae3b', fontSize: '2rem' }} />
+                                            <p className="text-sm" style={{ color: '#ebae3b' }}>Memuat foto...</p>
+                                        </div>
+                                    )}
+                                    <img
+                                        src={imageUrl}
+                                        alt="Foto Presensi"
+                                        className="w-full"
+                                        onLoad={() => setImageLoading(false)}
+                                        onError={(e) => {
+                                            setImageLoading(false);
+                                            console.error('Image failed to load:', imageUrl);
+                                            console.error('Original URL:', presence.imageUrl);
+                                            e.target.style.display = 'none';
+                                            const errorDiv = document.createElement('div');
+                                            errorDiv.className = 'p-8 text-center';
+                                            errorDiv.innerHTML = `
                                         <p style="color: #ef4444; margin-bottom: 8px;">Gagal memuat gambar</p>
                                         <a href="${presence.imageUrl}" target="_blank" rel="noopener noreferrer" 
                                            style="color: #ebae3b; text-decoration: underline; font-size: 12px;">
                                             Buka gambar di Google Drive
                                         </a>
                                     `;
-                                        e.target.parentElement.appendChild(errorDiv);
-                                    }}
-                                    style={{ display: 'block', maxWidth: '100%', height: 'auto' }}
-                                />
-                            </div>
-                        );
-                    })()}
+                                            e.target.parentElement.appendChild(errorDiv);
+                                        }}
+                                        style={{ display: 'block', maxWidth: '100%', height: 'auto' }}
+                                    />
+                                </div>
+                            );
+                        })()}
 
-                    {!presence.imageUrl && (
-                        <div className="rounded-2xl p-8 text-center shadow-2xl"
-                            style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
-                            <p style={{ color: '#9ca3af' }}>Tidak ada foto</p>
-                        </div>
-                    )}
+                        {!presence.imageUrl && (
+                            <div className="rounded-2xl p-8 text-center shadow-2xl"
+                                style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
+                                <p style={{ color: '#9ca3af' }}>Tidak ada foto</p>
+                            </div>
+                        )}
                     </div>
 
                     {/* Right Column - Info */}
                     <div className="lg:col-span-3 space-y-4">
-                    {/* User Info */}
-                    {presence.user && (
+                        {/* User Info */}
+                        {presence.user && (
+                            <div className="rounded-2xl p-6 shadow-2xl"
+                                style={{ background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(10px)' }}>
+                                <h3 className="text-sm font-semibold mb-4 text-gray-400">
+                                    Informasi Pengguna
+                                </h3>
+                                <div className="space-y-3">
+                                    <div>
+                                        <p className="text-xs text-gray-500">Nama</p>
+                                        <p className="font-semibold text-white">{presence.user.name}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-gray-500">Username</p>
+                                        <p className="font-semibold text-white">{presence.username}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-gray-500">Kelas</p>
+                                        <p className="font-semibold text-white">
+                                            {presence.user.class} {presence.user.major}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Presence Info */}
                         <div className="rounded-2xl p-6 shadow-2xl"
                             style={{ background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(10px)' }}>
                             <h3 className="text-sm font-semibold mb-4 text-gray-400">
-                                Informasi Pengguna
+                                Informasi Presensi
                             </h3>
                             <div className="space-y-3">
                                 <div>
-                                    <p className="text-xs text-gray-500">Nama</p>
-                                    <p className="font-semibold text-white">{presence.user.name}</p>
-                                </div>
-                                <div>
-                                    <p className="text-xs text-gray-500">Username</p>
-                                    <p className="font-semibold text-white">{presence.username}</p>
-                                </div>
-                                <div>
-                                    <p className="text-xs text-gray-500">Kelas</p>
-                                    <p className="font-semibold text-white">
-                                        {presence.user.class} {presence.user.major}
+                                    <p className="text-xs text-gray-500">Jenis Piket</p>
+                                    <p className="font-semibold" style={{ color: '#ebae3b' }}>
+                                        {presence.picketType}
                                     </p>
                                 </div>
-                            </div>
-                        </div>
-                    )}
 
-                    {/* Presence Info */}
-                    <div className="rounded-2xl p-6 shadow-2xl"
-                        style={{ background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(10px)' }}>
-                        <h3 className="text-sm font-semibold mb-4 text-gray-400">
-                            Informasi Presensi
-                        </h3>
-                        <div className="space-y-3">
-                            <div>
-                                <p className="text-xs text-gray-500">Jenis Piket</p>
-                                <p className="font-semibold" style={{ color: '#ebae3b' }}>
-                                    {presence.picketType}
-                                </p>
-                            </div>
+                                {presence.area && (
+                                    <div>
+                                        <p className="text-xs text-gray-500">Area</p>
+                                        <p className="font-semibold text-white flex items-center gap-2">
+                                            <FaMapMarkerAlt style={{ color: '#60a5fa' }} />
+                                            {presence.area}
+                                        </p>
+                                    </div>
+                                )}
 
-                            {presence.area && (
                                 <div>
-                                    <p className="text-xs text-gray-500">Area</p>
+                                    <p className="text-xs text-gray-500">Waktu</p>
                                     <p className="font-semibold text-white flex items-center gap-2">
-                                        <FaMapMarkerAlt style={{ color: '#60a5fa' }} />
-                                        {presence.area}
+                                        <FaClock style={{ color: '#60a5fa' }} />
+                                        {new Date(presence.timestamp).toLocaleString('id-ID', {
+                                            timeZone: 'Asia/Jakarta',
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            second: '2-digit',
+                                        })}
                                     </p>
                                 </div>
-                            )}
 
-                            <div>
-                                <p className="text-xs text-gray-500">Waktu</p>
-                                <p className="font-semibold text-white flex items-center gap-2">
-                                    <FaClock style={{ color: '#60a5fa' }} />
-                                    {new Date(presence.timestamp).toLocaleString('id-ID', {
-                                        timeZone: 'Asia/Jakarta',
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric',
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                        second: '2-digit',
-                                    })}
-                                </p>
-                            </div>
+                                <div className="flex flex-col gap-1">
+                                    <p className="text-xs text-gray-500">Status</p>
+                                    <span
+                                        className="text-xs px-3 py-1.5 rounded-lg font-black border-2 uppercase tracking-wide"
+                                        style={presence.status === 'Tepat Waktu'
+                                            ? { background: 'rgba(34, 197, 94, 0.25)', color: '#4ade80', borderColor: '#22c55e' }
+                                            : { background: 'rgba(239, 68, 68, 0.25)', color: '#f87171', borderColor: '#ef4444' }
+                                        }
+                                    >
+                                        {presence.status}
+                                    </span>
+                                </div>
 
-                            <div className="flex flex-col gap-1">
-                                <p className="text-xs text-gray-500">Status</p>
-                                <span
-                                    className="text-xs px-3 py-1.5 rounded-lg font-black border-2 uppercase tracking-wide"
-                                    style={presence.status === 'Tepat Waktu'
-                                        ? { background: 'rgba(34, 197, 94, 0.25)', color: '#4ade80', borderColor: '#22c55e' }
-                                        : { background: 'rgba(239, 68, 68, 0.25)', color: '#f87171', borderColor: '#ef4444' }
-                                    }
-                                >
-                                    {presence.status}
-                                </span>
-                            </div>
+                                {presence.lateNotes && (
+                                    <div>
+                                        <p className="text-xs text-gray-500">Alasan Terlambat</p>
+                                        <p className="font-medium text-white p-3 rounded-lg mt-1"
+                                            style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+                                            {presence.lateNotes}
+                                        </p>
+                                    </div>
+                                )}
 
-                            {presence.lateNotes && (
                                 <div>
-                                    <p className="text-xs text-gray-500">Alasan Terlambat</p>
-                                    <p className="font-medium text-white p-3 rounded-lg mt-1"
-                                        style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
-                                        {presence.lateNotes}
+                                    <p className="text-xs text-gray-500">Koordinat Lokasi</p>
+                                    <p className="font-mono text-sm text-white p-3 rounded-lg mt-1"
+                                        style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+                                        {presence.location ? `${presence.location.latitude.toFixed(6)}, ${presence.location.longitude.toFixed(6)}` : <span className="text-gray-400">-</span>}
                                     </p>
                                 </div>
-                            )}
 
-                            <div>
-                                <p className="text-xs text-gray-500">Koordinat Lokasi</p>
-                                <p className="font-mono text-sm text-white p-3 rounded-lg mt-1"
-                                    style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
-                                    {presence.location ? `${presence.location.latitude.toFixed(6)}, ${presence.location.longitude.toFixed(6)}` : <span className="text-gray-400">-</span>}
-                                </p>
+                                {/* Map */}
+                                {presence.location && (
+                                    <div>
+                                        <p className="text-xs text-gray-500 mb-2">Peta Lokasi</p>
+                                        <LocationMap
+                                            latitude={presence.location.latitude}
+                                            longitude={presence.location.longitude}
+                                            geofence={SCHOOL_AREA}
+                                            height="280px"
+                                        />
+                                        {(() => {
+                                            const geo = isWithinSchoolArea(presence.location.latitude, presence.location.longitude);
+                                            return (
+                                                <div className="mt-2 px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-2"
+                                                    style={geo.allowed
+                                                        ? { background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.3)' }
+                                                        : { background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)' }
+                                                    }>
+                                                    {geo.allowed ? '✓' : '✗'} {geo.distance}m dari {SCHOOL_AREA.name}
+                                                    {geo.allowed ? ' — Dalam area' : ' — Di luar area'}
+                                                </div>
+                                            );
+                                        })()}
+                                    </div>
+                                )}
+                                {/* Device / Origin Info (collapsible) */}
+                                {(presence.deviceInfo || presence.ip) && (
+                                    <DeviceInfoCollapse deviceInfo={presence.deviceInfo} ip={presence.ip} />
+                                )}
                             </div>
-                            {/* Device / Origin Info (collapsible) */}
-                            {(presence.deviceInfo || presence.ip) && (
-                                <DeviceInfoCollapse deviceInfo={presence.deviceInfo} ip={presence.ip} />
-                            )}
                         </div>
-                    </div>
 
-                    {/* <script async="async" data-cfasync="false" src="https://passivealexis.com/487e52acb339c3a0ec406d9715d6faa1/invoke.js"></script> */}
-                    <div id="container-487e52acb339c3a0ec406d9715d6faa1" />
+                        {/* <script async="async" data-cfasync="false" src="https://passivealexis.com/487e52acb339c3a0ec406d9715d6faa1/invoke.js"></script> */}
+                        <div id="container-487e52acb339c3a0ec406d9715d6faa1" />
                     </div>
 
                     <Modal
