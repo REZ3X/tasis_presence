@@ -14,7 +14,7 @@ export const SCHOOL_AREA = {
     name: 'SMK Negeri 2 Depok Sleman',
     latitude: -7.7718000,
     longitude: 110.3927567,
-    radiusMeters: 170,
+    radiusMeters: 200,
 };
 
 /**
